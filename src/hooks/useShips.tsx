@@ -51,9 +51,19 @@ export const useShips = () => {
     if (!user) return null;
 
     try {
+      // Ensure required fields are present
+      const shipToInsert = {
+        ...shipData,
+        user_id: user.id,
+        name: shipData.name || '', // Ensure name is not undefined
+        status: shipData.status || 'active',
+        current_speed: shipData.current_speed || 0,
+        current_heading: shipData.current_heading || 0
+      };
+
       const { data, error } = await supabase
         .from('ships')
-        .insert([{ ...shipData, user_id: user.id }])
+        .insert(shipToInsert)
         .select()
         .single();
 

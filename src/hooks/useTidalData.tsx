@@ -32,7 +32,14 @@ export const useTidalData = (location?: string) => {
       const { data, error } = await query.limit(10);
 
       if (error) throw error;
-      setTidalData(data || []);
+      
+      // Type cast the data to ensure tide_type matches our interface
+      const typedData: TidalData[] = (data || []).map(item => ({
+        ...item,
+        tide_type: item.tide_type as 'high' | 'low'
+      }));
+      
+      setTidalData(typedData);
     } catch (error) {
       console.error('Error fetching tidal data:', error);
     } finally {
