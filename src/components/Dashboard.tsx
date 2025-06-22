@@ -1,12 +1,13 @@
 
 import React, { useState } from 'react';
-import { Ship, LogOut, Waves, Settings, Users, Route } from 'lucide-react';
+import { Ship, LogOut, Waves, Settings, Users, Route, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
 import TidalInfo from './TidalInfo';
 import ShipStatus from './ShipStatus';
 import NavigationMap from './NavigationMap';
 import ShipManagement from './ShipManagement';
+import ContractManagement from './ContractManagement';
 
 const Dashboard = () => {
   const { signOut } = useAuth();
@@ -16,12 +17,15 @@ const Dashboard = () => {
     { id: 'overview', label: 'Overview', icon: Ship },
     { id: 'ships', label: 'Manajemen Kapal', icon: Settings },
     { id: 'routes', label: 'Rute & Navigasi', icon: Route },
+    { id: 'contracts', label: 'Kontrak Nahkodaku', icon: FileText },
   ];
 
   const renderContent = () => {
     switch (activeTab) {
       case 'ships':
         return <ShipManagement />;
+      case 'contracts':
+        return <ContractManagement />;
       case 'routes':
         return (
           <div className="text-center py-12">

@@ -9,6 +9,95 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      contract_notifications: {
+        Row: {
+          contract_id: string
+          id: string
+          message_sent: boolean | null
+          notification_type: string
+          sent_at: string | null
+          whatsapp_number: string
+        }
+        Insert: {
+          contract_id: string
+          id?: string
+          message_sent?: boolean | null
+          notification_type: string
+          sent_at?: string | null
+          whatsapp_number: string
+        }
+        Update: {
+          contract_id?: string
+          id?: string
+          message_sent?: boolean | null
+          notification_type?: string
+          sent_at?: string | null
+          whatsapp_number?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contract_notifications_contract_id_fkey"
+            columns: ["contract_id"]
+            isOneToOne: false
+            referencedRelation: "contracts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      contracts: {
+        Row: {
+          contract_type: string
+          created_at: string | null
+          duration_months: number
+          end_date: string
+          id: string
+          notification_sent: boolean | null
+          payment_method: string | null
+          payment_proof_url: string | null
+          payment_status: string
+          price: number
+          start_date: string
+          status: string
+          updated_at: string | null
+          user_id: string
+          whatsapp_number: string | null
+        }
+        Insert: {
+          contract_type: string
+          created_at?: string | null
+          duration_months: number
+          end_date: string
+          id?: string
+          notification_sent?: boolean | null
+          payment_method?: string | null
+          payment_proof_url?: string | null
+          payment_status?: string
+          price: number
+          start_date?: string
+          status?: string
+          updated_at?: string | null
+          user_id: string
+          whatsapp_number?: string | null
+        }
+        Update: {
+          contract_type?: string
+          created_at?: string | null
+          duration_months?: number
+          end_date?: string
+          id?: string
+          notification_sent?: boolean | null
+          payment_method?: string | null
+          payment_proof_url?: string | null
+          payment_status?: string
+          price?: number
+          start_date?: string
+          status?: string
+          updated_at?: string | null
+          user_id?: string
+          whatsapp_number?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -259,7 +348,17 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_contracts_expiring_soon: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          contract_id: string
+          user_email: string
+          whatsapp_number: string
+          contract_type: string
+          end_date: string
+          days_until_expiry: number
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never
