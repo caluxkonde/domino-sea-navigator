@@ -1,39 +1,24 @@
 
-import React, { useState, useEffect } from 'react';
-import { Waves, ArrowUp, ArrowDown } from 'lucide-react';
+import React from 'react';
+import { Waves, TrendingUp, TrendingDown } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { useTidalData } from '@/hooks/useTidalData';
 
 const TidalInfo = () => {
-  const [currentTime, setCurrentTime] = useState(new Date());
-  const [tidalData, setTidalData] = useState({
-    currentHeight: 2.3,
-    trend: 'rising',
-    nextHigh: '14:30',
-    nextLow: '20:45',
-    highHeight: 3.2,
-    lowHeight: 0.8
-  });
+  const { tidalData, loading } = useTidalData('Jakarta Bay');
 
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentTime(new Date());
-      // Simulate changing tidal data
-      setTidalData(prev => ({
-        ...prev,
-        currentHeight: Math.round((2.0 + Math.sin(Date.now() / 100000) * 1.2) * 10) / 10
-      }));
-    }, 30000);
+  if (loading) {
+    return (
+      <Card className="border-0 shadow-lg bg-white/80 backdrop-blur-sm">
+        <CardHeader>
+          <CardTitle>Loading tidal data...</CardTitle>
+        </CardHeader>
+      </Card>
+    );
+  }
 
-    return () => clearInterval(timer);
-  }, []);
-
-  const getTidalColor = (trend: string) => {
-    return trend === 'rising' ? 'text-blue-600' : 'text-blue-800';
-  };
-
-  const getTidalIcon = (trend: string) => {
-    return trend === 'rising' ? <ArrowUp className="h-4 w-4" /> : <ArrowDown className="h-4 w-4" />;
-  };
+  const nextTides = tidalData.slice(0, 4);
+  const currentTide = nextTides[0];
 
   return (
     <Card className="border-0 shadow-lg bg-white/80 backdrop-blur-sm">
@@ -41,70 +26,100 @@ const TidalInfo = () => {
         <div className="flex items-center space-x-2">
           <Waves className="h-5 w-5 text-blue-600" />
           <div>
-            <CardTitle className="text-lg text-slate-800">Info Pasang Surut</CardTitle>
+            <CardTitle className="text-lg text-slate-800">Informasi Pasang Surut</CardTitle>
             <CardDescription className="text-slate-600">
-              Data real-time kondisi laut
+              Jakarta Bay - Data Real-time
             </CardDescription>
           </div>
         </div>
       </CardHeader>
       
-      <CardContent className="space-y-6">
-        {/* Current Tidal Height */}
-        <div className="text-center">
-          <div className="flex items-center justify-center space-x-2 mb-2">
-            <span className={`font-bold text-2xl ${getTidalColor(tidalData.trend)}`}>
-              {tidalData.currentHeight}m
-            </span>
-            <div className={getTidalColor(tidalData.trend)}>
-              {getTidalIcon(tidalData.trend)}
+      <CardContent className="space-y-4">
+        {/* Current/Next Tide */}
+        {currentTide && (
+          <div className="bg-gradient-to-r from-blue-50 to-blue-100 p-4 rounded-lg border border-blue-200">
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center space-x-2">
+                {currentTide.tide_type === 'high' ? (
+                  <TrendingUp className="h-5 w-5 text-blue-600" />
+                ) : (
+                  <TrendingDown className="h-5 w-5 text-blue-600" />
+                )}
+                <span className="font-semibold text-blue-800 capitalize">
+                  {currentTide.tide_type === 'high' ? 'Pasang Tinggi' : 'Pasang Rendah'}
+                </span>
+              </div>
+              <span className="text-lg font-bold text-blue-800">
+                {currentTide.tide_height_m.toFixed(1)}m
+              </span>
             </div>
+            <p className="text-sm text-blue-700">
+              {new Date(currentTide.tide_time).toLocaleString('id-ID', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+              })}
+            </p>
           </div>
-          <p className="text-sm text-slate-600">
-            Ketinggian saat ini - {tidalData.trend === 'rising' ? 'Naik' : 'Turun'}
-          </p>
+        )}
+
+        {/* Upcoming Tides */}
+        <div className="space-y-3">
+          <h4 className="text-sm font-semibold text-slate-700">Jadwal Selanjutnya</h4>
+          {nextTides.slice(1).map((tide, index) => (
+            <div key={tide.id} className="flex items-center justify-between py-2 border-b border-slate-100 last:border-0">
+              <div className="flex items-center space-x-2">
+                {tide.tide_type === 'high' ? (
+                  <TrendingUp className="h-4 w-4 text-slate-500" />
+                ) : (
+                  <TrendingDown className="h-4 w-4 text-slate-500" />
+                )}
+                <div>
+                  <p className="text-sm font-medium text-slate-700 capitalize">
+                    {tide.tide_type === 'high' ? 'Pasang Tinggi' : 'Pasang Rendah'}
+                  </p>
+                  <p className="text-xs text-slate-500">
+                    {new Date(tide.tide_time).toLocaleString('id-ID', {
+                      month: 'short',
+                      day: 'numeric',
+                      hour: '2-digit',
+                      minute: '2-digit',
+                    })}
+                  </p>
+                </div>
+              </div>
+              <span className="text-sm font-semibold text-slate-800">
+                {tide.tide_height_m.toFixed(1)}m
+              </span>
+            </div>
+          ))}
         </div>
 
-        {/* Tidal Progress Bar */}
-        <div className="space-y-2">
-          <div className="flex justify-between text-xs text-slate-600">
-            <span>Surut: {tidalData.lowHeight}m</span>
-            <span>Pasang: {tidalData.highHeight}m</span>
-          </div>
-          <div className="w-full bg-slate-200 rounded-full h-2">
-            <div 
-              className="bg-gradient-to-r from-blue-400 to-blue-600 h-2 rounded-full transition-all duration-500"
-              style={{ 
-                width: `${((tidalData.currentHeight - tidalData.lowHeight) / (tidalData.highHeight - tidalData.lowHeight)) * 100}%` 
-              }}
-            ></div>
-          </div>
-        </div>
-
-        {/* Next Tidal Events */}
-        <div className="grid grid-cols-2 gap-4">
-          <div className="text-center p-3 bg-blue-50 rounded-lg border border-blue-100">
-            <div className="flex items-center justify-center mb-2">
-              <ArrowUp className="h-4 w-4 text-blue-600 mr-1" />
-              <span className="text-sm font-medium text-blue-800">Pasang</span>
+        {/* Tidal Chart Visualization */}
+        <div className="mt-4">
+          <div className="bg-slate-50 p-4 rounded-lg">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-sm text-slate-600">Grafik Pasang Surut 24 Jam</span>
             </div>
-            <p className="text-lg font-bold text-blue-700">{tidalData.nextHigh}</p>
-            <p className="text-xs text-blue-600">{tidalData.highHeight}m</p>
-          </div>
-          
-          <div className="text-center p-3 bg-slate-50 rounded-lg border border-slate-200">
-            <div className="flex items-center justify-center mb-2">
-              <ArrowDown className="h-4 w-4 text-slate-600 mr-1" />
-              <span className="text-sm font-medium text-slate-700">Surut</span>
+            <div className="relative h-16 bg-gradient-to-r from-blue-200 via-blue-300 to-blue-200 rounded overflow-hidden">
+              {nextTides.map((tide, index) => (
+                <div
+                  key={tide.id}
+                  className={`absolute w-2 rounded-full ${
+                    tide.tide_type === 'high' ? 'bg-blue-600' : 'bg-blue-400'
+                  }`}
+                  style={{
+                    left: `${(index * 25)}%`,
+                    height: `${Math.max(20, (tide.tide_height_m / 4) * 100)}%`,
+                    bottom: '0',
+                  }}
+                />
+              ))}
             </div>
-            <p className="text-lg font-bold text-slate-700">{tidalData.nextLow}</p>
-            <p className="text-xs text-slate-600">{tidalData.lowHeight}m</p>
           </div>
-        </div>
-
-        {/* Last Updated */}
-        <div className="text-center text-xs text-slate-500 border-t border-slate-200 pt-3">
-          Terakhir diperbarui: {currentTime.toLocaleTimeString('id-ID')}
         </div>
       </CardContent>
     </Card>

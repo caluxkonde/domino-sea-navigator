@@ -9,7 +9,251 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          company: string | null
+          created_at: string | null
+          email: string | null
+          full_name: string | null
+          id: string
+          position: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          company?: string | null
+          created_at?: string | null
+          email?: string | null
+          full_name?: string | null
+          id: string
+          position?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          company?: string | null
+          created_at?: string | null
+          email?: string | null
+          full_name?: string | null
+          id?: string
+          position?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      routes: {
+        Row: {
+          created_at: string | null
+          destination_port: string | null
+          distance_nm: number | null
+          estimated_duration: unknown | null
+          id: string
+          name: string
+          origin_port: string | null
+          ship_id: string
+          status: string | null
+          updated_at: string | null
+          waypoints: Json | null
+        }
+        Insert: {
+          created_at?: string | null
+          destination_port?: string | null
+          distance_nm?: number | null
+          estimated_duration?: unknown | null
+          id?: string
+          name: string
+          origin_port?: string | null
+          ship_id: string
+          status?: string | null
+          updated_at?: string | null
+          waypoints?: Json | null
+        }
+        Update: {
+          created_at?: string | null
+          destination_port?: string | null
+          distance_nm?: number | null
+          estimated_duration?: unknown | null
+          id?: string
+          name?: string
+          origin_port?: string | null
+          ship_id?: string
+          status?: string | null
+          updated_at?: string | null
+          waypoints?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "routes_ship_id_fkey"
+            columns: ["ship_id"]
+            isOneToOne: false
+            referencedRelation: "ships"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ships: {
+        Row: {
+          call_sign: string | null
+          created_at: string | null
+          current_heading: number | null
+          current_lat: number | null
+          current_lng: number | null
+          current_speed: number | null
+          draft_m: number | null
+          flag: string | null
+          gross_tonnage: number | null
+          id: string
+          imo_number: string | null
+          length_m: number | null
+          name: string
+          status: string | null
+          type: string | null
+          updated_at: string | null
+          user_id: string
+          width_m: number | null
+        }
+        Insert: {
+          call_sign?: string | null
+          created_at?: string | null
+          current_heading?: number | null
+          current_lat?: number | null
+          current_lng?: number | null
+          current_speed?: number | null
+          draft_m?: number | null
+          flag?: string | null
+          gross_tonnage?: number | null
+          id?: string
+          imo_number?: string | null
+          length_m?: number | null
+          name: string
+          status?: string | null
+          type?: string | null
+          updated_at?: string | null
+          user_id: string
+          width_m?: number | null
+        }
+        Update: {
+          call_sign?: string | null
+          created_at?: string | null
+          current_heading?: number | null
+          current_lat?: number | null
+          current_lng?: number | null
+          current_speed?: number | null
+          draft_m?: number | null
+          flag?: string | null
+          gross_tonnage?: number | null
+          id?: string
+          imo_number?: string | null
+          length_m?: number | null
+          name?: string
+          status?: string | null
+          type?: string | null
+          updated_at?: string | null
+          user_id?: string
+          width_m?: number | null
+        }
+        Relationships: []
+      }
+      tidal_data: {
+        Row: {
+          created_at: string | null
+          id: string
+          latitude: number
+          location_name: string
+          longitude: number
+          tide_height_m: number
+          tide_time: string
+          tide_type: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          latitude: number
+          location_name: string
+          longitude: number
+          tide_height_m: number
+          tide_time: string
+          tide_type: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          latitude?: number
+          location_name?: string
+          longitude?: number
+          tide_height_m?: number
+          tide_time?: string
+          tide_type?: string
+        }
+        Relationships: []
+      }
+      voyage_logs: {
+        Row: {
+          heading_degrees: number | null
+          id: string
+          latitude: number
+          log_time: string | null
+          longitude: number
+          notes: string | null
+          route_id: string | null
+          sea_state: string | null
+          ship_id: string
+          speed_knots: number | null
+          visibility_nm: number | null
+          wave_height_m: number | null
+          weather_condition: string | null
+          wind_speed_knots: number | null
+        }
+        Insert: {
+          heading_degrees?: number | null
+          id?: string
+          latitude: number
+          log_time?: string | null
+          longitude: number
+          notes?: string | null
+          route_id?: string | null
+          sea_state?: string | null
+          ship_id: string
+          speed_knots?: number | null
+          visibility_nm?: number | null
+          wave_height_m?: number | null
+          weather_condition?: string | null
+          wind_speed_knots?: number | null
+        }
+        Update: {
+          heading_degrees?: number | null
+          id?: string
+          latitude?: number
+          log_time?: string | null
+          longitude?: number
+          notes?: string | null
+          route_id?: string | null
+          sea_state?: string | null
+          ship_id?: string
+          speed_knots?: number | null
+          visibility_nm?: number | null
+          wave_height_m?: number | null
+          weather_condition?: string | null
+          wind_speed_knots?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "voyage_logs_route_id_fkey"
+            columns: ["route_id"]
+            isOneToOne: false
+            referencedRelation: "routes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "voyage_logs_ship_id_fkey"
+            columns: ["ship_id"]
+            isOneToOne: false
+            referencedRelation: "ships"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
