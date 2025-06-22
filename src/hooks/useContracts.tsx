@@ -2,6 +2,10 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
+import { Database } from '@/integrations/supabase/types';
+
+type ContractRow = Database['public']['Tables']['contracts']['Row'];
+type ContractInsert = Database['public']['Tables']['contracts']['Insert'];
 
 export interface Contract {
   id: string;
@@ -21,6 +25,25 @@ export interface Contract {
   updated_at: string;
 }
 
+// Helper function to convert database row to Contract interface
+const mapContractRow = (row: ContractRow): Contract => ({
+  id: row.id,
+  user_id: row.user_id,
+  contract_type: row.contract_type as '3_months' | '6_months' | '1_year',
+  price: Number(row.price),
+  duration_months: row.duration_months,
+  start_date: row.start_date,
+  end_date: row.end_date,
+  status: row.status as 'active' | 'expired' | 'cancelled',
+  payment_method: row.payment_method as 'transfer' | 'dana' | undefined,
+  payment_status: row.payment_status as 'pending' | 'verified' | 'failed',
+  payment_proof_url: row.payment_proof_url || undefined,
+  whatsapp_number: row.whatsapp_number || undefined,
+  notification_sent: row.notification_sent || false,
+  created_at: row.created_at || '',
+  updated_at: row.updated_at || ''
+});
+
 export const useContracts = () => {
   const [contracts, setContracts] = useState<Contract[]>([]);
   const [loading, setLoading] = useState(true);
@@ -36,7 +59,9 @@ export const useContracts = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setContracts(data || []);
+      
+      const mappedContracts = (data || []).map(mapContractRow);
+      setContracts(mappedContracts);
     } catch (error) {
       console.error('Error fetching contracts:', error);
     } finally {
@@ -52,21 +77,25 @@ export const useContracts = () => {
     if (!user) return null;
 
     try {
+      const insertData: ContractInsert = {
+        user_id: user.id,
+        contract_type: contractData.contract_type,
+        payment_method: contractData.payment_method,
+        whatsapp_number: contractData.whatsapp_number,
+        payment_status: 'pending'
+      };
+
       const { data, error } = await supabase
         .from('contracts')
-        .insert({
-          user_id: user.id,
-          contract_type: contractData.contract_type,
-          payment_method: contractData.payment_method,
-          whatsapp_number: contractData.whatsapp_number,
-          payment_status: 'pending'
-        })
+        .insert(insertData)
         .select()
         .single();
 
       if (error) throw error;
-      setContracts(prev => [data, ...prev]);
-      return data;
+      
+      const mappedContract = mapContractRow(data);
+      setContracts(prev => [mappedContract, ...prev]);
+      return mappedContract;
     } catch (error) {
       console.error('Error creating contract:', error);
       return null;
@@ -86,10 +115,12 @@ export const useContracts = () => {
         .single();
 
       if (error) throw error;
+      
+      const mappedContract = mapContractRow(data);
       setContracts(prev => prev.map(contract => 
-        contract.id === contractId ? data : contract
+        contract.id === contractId ? mappedContract : contract
       ));
-      return data;
+      return mappedContract;
     } catch (error) {
       console.error('Error updating payment proof:', error);
       return null;
