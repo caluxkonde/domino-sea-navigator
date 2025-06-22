@@ -77,12 +77,18 @@ export const useContracts = () => {
     if (!user) return null;
 
     try {
-      const insertData: ContractInsert = {
+      // These fields will be set by the database trigger, so we provide dummy values
+      // that will be overwritten by the trigger function
+      const insertData = {
         user_id: user.id,
         contract_type: contractData.contract_type,
         payment_method: contractData.payment_method,
         whatsapp_number: contractData.whatsapp_number,
-        payment_status: 'pending'
+        payment_status: 'pending' as const,
+        // These will be set by the trigger, but TypeScript requires them
+        duration_months: 0,
+        end_date: new Date().toISOString(),
+        price: 0
       };
 
       const { data, error } = await supabase
