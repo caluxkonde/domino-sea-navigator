@@ -37,7 +37,7 @@ export const useAdminContracts = () => {
         .from('contracts')
         .select(`
           *,
-          profiles!contracts_user_id_fkey (
+          profiles!inner (
             full_name,
             email
           )
@@ -46,7 +46,10 @@ export const useAdminContracts = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setContracts(data || []);
+      
+      // Type assertion to match our interface
+      const typedData = data as AdminContract[];
+      setContracts(typedData || []);
     } catch (error) {
       console.error('Error fetching contracts:', error);
       toast({
@@ -71,7 +74,7 @@ export const useAdminContracts = () => {
 
       if (error) throw error;
 
-      const response = data as ContractResponse;
+      const response = data as unknown as ContractResponse;
       if (response.success) {
         toast({
           title: "Berhasil",
@@ -105,7 +108,7 @@ export const useAdminContracts = () => {
 
       if (error) throw error;
 
-      const response = data as ContractResponse;
+      const response = data as unknown as ContractResponse;
       if (response.success) {
         toast({
           title: "Berhasil",
