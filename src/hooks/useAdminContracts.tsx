@@ -19,6 +19,12 @@ export interface AdminContract {
   };
 }
 
+interface ContractResponse {
+  success: boolean;
+  error?: string;
+  contract?: any;
+}
+
 export const useAdminContracts = () => {
   const [contracts, setContracts] = useState<AdminContract[]>([]);
   const [loading, setLoading] = useState(true);
@@ -31,7 +37,7 @@ export const useAdminContracts = () => {
         .from('contracts')
         .select(`
           *,
-          profiles:user_id (
+          profiles!contracts_user_id_fkey (
             full_name,
             email
           )
@@ -65,7 +71,8 @@ export const useAdminContracts = () => {
 
       if (error) throw error;
 
-      if (data.success) {
+      const response = data as ContractResponse;
+      if (response.success) {
         toast({
           title: "Berhasil",
           description: "Kontrak telah disetujui",
@@ -73,7 +80,7 @@ export const useAdminContracts = () => {
         await fetchPendingContracts();
         return true;
       } else {
-        throw new Error(data.error);
+        throw new Error(response.error);
       }
     } catch (error: any) {
       console.error('Error accepting contract:', error);
@@ -98,7 +105,8 @@ export const useAdminContracts = () => {
 
       if (error) throw error;
 
-      if (data.success) {
+      const response = data as ContractResponse;
+      if (response.success) {
         toast({
           title: "Berhasil",
           description: "Kontrak telah ditolak",
@@ -106,7 +114,7 @@ export const useAdminContracts = () => {
         await fetchPendingContracts();
         return true;
       } else {
-        throw new Error(data.error);
+        throw new Error(response.error);
       }
     } catch (error: any) {
       console.error('Error rejecting contract:', error);
