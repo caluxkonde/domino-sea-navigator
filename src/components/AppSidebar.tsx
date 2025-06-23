@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Ship, Settings, Route, FileText, Waves, Home } from 'lucide-react';
+import { Ship, Settings, Route, FileText, Waves, Sun } from 'lucide-react';
 import {
   Sidebar,
   SidebarContent,
@@ -22,8 +22,14 @@ const AppSidebar = ({ activeTab, onTabChange }: AppSidebarProps) => {
     {
       id: 'overview',
       label: 'Dashboard',
-      icon: Home,
+      icon: Sun,
       description: 'Ringkasan umum sistem'
+    },
+    {
+      id: 'tides',
+      label: 'Pasang Surut',
+      icon: Waves,
+      description: 'Data pasang surut real-time'
     },
     {
       id: 'ships',

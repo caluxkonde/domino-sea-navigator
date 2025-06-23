@@ -1,16 +1,25 @@
 
 import React, { useState } from 'react';
-import { Waves, TrendingUp, TrendingDown, MapPin } from 'lucide-react';
+import { Waves, TrendingUp, TrendingDown, MapPin, Moon, Sun, Sunrise, Sunset } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useTidalData } from '@/hooks/useTidalData';
+import { useGeolocation } from '@/hooks/useGeolocation';
 
 const TidalInfo = () => {
-  const [selectedLocation, setSelectedLocation] = useState('Jakarta Bay');
-  const { tidalData, loading } = useTidalData(selectedLocation);
+  const [selectedLocation, setSelectedLocation] = useState('current');
+  const { latitude, longitude } = useGeolocation();
+  const { tidalData, realTimeTidalData, loading } = useTidalData(
+    selectedLocation === 'current' ? undefined : selectedLocation,
+    selectedLocation === 'current' ? latitude : null,
+    selectedLocation === 'current' ? longitude : null
+  );
 
   // Data lokasi berdasarkan negara dan kota
   const locations = {
+    Current: [
+      { name: 'current', label: 'Lokasi Saat Ini' }
+    ],
     Indonesia: [
       { name: 'Jakarta Bay', label: 'Jakarta Bay' },
       { name: 'Surabaya Port', label: 'Pelabuhan Surabaya' },
@@ -45,8 +54,25 @@ const TidalInfo = () => {
     );
   }
 
-  const nextTides = tidalData.slice(0, 4);
-  const currentTide = nextTides[0];
+  const currentData = realTimeTidalData || {
+    currentTide: tidalData[0] ? {
+      type: tidalData[0].tide_type,
+      height: tidalData[0].tide_height_m,
+      time: tidalData[0].tide_time,
+      status: 'stable' as const
+    } : null,
+    nextTides: tidalData.slice(1, 5).map(tide => ({
+      type: tide.tide_type,
+      height: tide.tide_height_m,
+      time: tide.tide_time
+    })),
+    location: selectedLocation === 'current' ? 'Lokasi Saat Ini' : selectedLocation,
+    moonPhase: 'Full Moon',
+    sunTimes: {
+      sunrise: new Date().toISOString(),
+      sunset: new Date().toISOString()
+    }
+  };
 
   return (
     <Card className="border-0 shadow-lg bg-white/80 backdrop-blur-sm h-fit">
@@ -54,9 +80,9 @@ const TidalInfo = () => {
         <div className="flex items-center space-x-2">
           <Waves className="h-5 w-5 text-blue-600" />
           <div className="flex-1">
-            <CardTitle className="text-lg text-slate-800">Informasi Pasang Surut</CardTitle>
+            <CardTitle className="text-lg text-slate-800">Pasang Surut Real-time</CardTitle>
             <CardDescription className="text-slate-600">
-              Data Real-time
+              Data Terkini & Prediksi
             </CardDescription>
           </div>
         </div>
@@ -91,26 +117,39 @@ const TidalInfo = () => {
       </CardHeader>
       
       <CardContent className="space-y-4">
-        {/* Current/Next Tide */}
-        {currentTide ? (
+        {/* Current Tide Status */}
+        {currentData.currentTide ? (
           <div className="bg-gradient-to-r from-blue-50 to-blue-100 p-4 rounded-lg border border-blue-200">
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center space-x-2">
-                {currentTide.tide_type === 'high' ? (
+                {currentData.currentTide.type === 'high' ? (
                   <TrendingUp className="h-5 w-5 text-blue-600" />
                 ) : (
                   <TrendingDown className="h-5 w-5 text-blue-600" />
                 )}
-                <span className="font-semibold text-blue-800 text-sm sm:text-base">
-                  {currentTide.tide_type === 'high' ? 'Pasang Tinggi' : 'Pasang Rendah'}
-                </span>
+                <div>
+                  <span className="font-semibold text-blue-800 text-sm sm:text-base">
+                    {currentData.currentTide.type === 'high' ? 'Pasang Tinggi' : 'Pasang Rendah'}
+                  </span>
+                  <div className="flex items-center space-x-2 mt-1">
+                    <span className={`text-xs px-2 py-1 rounded-full ${
+                      currentData.currentTide.status === 'rising' ? 'bg-green-100 text-green-700' :
+                      currentData.currentTide.status === 'falling' ? 'bg-red-100 text-red-700' :
+                      'bg-blue-100 text-blue-700'
+                    }`}>
+                      {currentData.currentTide.status === 'rising' ? '↗ Naik' :
+                       currentData.currentTide.status === 'falling' ? '↘ Turun' :
+                       '→ Stabil'}
+                    </span>
+                  </div>
+                </div>
               </div>
               <span className="text-lg font-bold text-blue-800">
-                {currentTide.tide_height_m.toFixed(1)}m
+                {currentData.currentTide.height.toFixed(1)}m
               </span>
             </div>
             <p className="text-xs sm:text-sm text-blue-700">
-              {new Date(currentTide.tide_time).toLocaleString('id-ID', {
+              {new Date(currentData.currentTide.time).toLocaleString('id-ID', {
                 weekday: 'short',
                 month: 'short',
                 day: 'numeric',
@@ -125,25 +164,64 @@ const TidalInfo = () => {
           </div>
         )}
 
+        {/* Sun & Moon Info */}
+        {realTimeTidalData && (
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div className="bg-gradient-to-r from-orange-50 to-yellow-100 p-3 rounded-lg border border-orange-200">
+              <div className="flex items-center space-x-2 mb-1">
+                <Sunrise className="h-4 w-4 text-orange-600" />
+                <span className="text-xs font-medium text-orange-800">Matahari Terbit</span>
+              </div>
+              <p className="text-sm font-semibold text-orange-800">
+                {new Date(realTimeTidalData.sunTimes.sunrise).toLocaleTimeString('id-ID', {
+                  hour: '2-digit',
+                  minute: '2-digit'
+                })}
+              </p>
+            </div>
+
+            <div className="bg-gradient-to-r from-purple-50 to-indigo-100 p-3 rounded-lg border border-purple-200">
+              <div className="flex items-center space-x-2 mb-1">
+                <Moon className="h-4 w-4 text-purple-600" />
+                <span className="text-xs font-medium text-purple-800">Fase Bulan</span>
+              </div>
+              <p className="text-sm font-semibold text-purple-800">{realTimeTidalData.moonPhase}</p>
+            </div>
+
+            <div className="bg-gradient-to-r from-red-50 to-pink-100 p-3 rounded-lg border border-red-200">
+              <div className="flex items-center space-x-2 mb-1">
+                <Sunset className="h-4 w-4 text-red-600" />
+                <span className="text-xs font-medium text-red-800">Matahari Tenggelam</span>
+              </div>
+              <p className="text-sm font-semibold text-red-800">
+                {new Date(realTimeTidalData.sunTimes.sunset).toLocaleTimeString('id-ID', {
+                  hour: '2-digit',
+                  minute: '2-digit'
+                })}
+              </p>
+            </div>
+          </div>
+        )}
+
         {/* Upcoming Tides */}
-        {nextTides.length > 1 && (
+        {currentData.nextTides.length > 0 && (
           <div className="space-y-3">
             <h4 className="text-sm font-semibold text-slate-700">Jadwal Selanjutnya</h4>
             <div className="space-y-2">
-              {nextTides.slice(1).map((tide, index) => (
-                <div key={tide.id} className="flex items-center justify-between py-2 px-3 bg-slate-50 rounded-lg">
+              {currentData.nextTides.map((tide, index) => (
+                <div key={index} className="flex items-center justify-between py-2 px-3 bg-slate-50 rounded-lg">
                   <div className="flex items-center space-x-2">
-                    {tide.tide_type === 'high' ? (
+                    {tide.type === 'high' ? (
                       <TrendingUp className="h-4 w-4 text-slate-500" />
                     ) : (
                       <TrendingDown className="h-4 w-4 text-slate-500" />
                     )}
                     <div>
                       <p className="text-sm font-medium text-slate-700">
-                        {tide.tide_type === 'high' ? 'Pasang' : 'Surut'}
+                        {tide.type === 'high' ? 'Pasang' : 'Surut'}
                       </p>
                       <p className="text-xs text-slate-500">
-                        {new Date(tide.tide_time).toLocaleString('id-ID', {
+                        {new Date(tide.time).toLocaleString('id-ID', {
                           month: 'short',
                           day: 'numeric',
                           hour: '2-digit',
@@ -153,7 +231,7 @@ const TidalInfo = () => {
                     </div>
                   </div>
                   <span className="text-sm font-semibold text-slate-800">
-                    {tide.tide_height_m.toFixed(1)}m
+                    {tide.height.toFixed(1)}m
                   </span>
                 </div>
               ))}
@@ -162,22 +240,22 @@ const TidalInfo = () => {
         )}
 
         {/* Tidal Chart Visualization */}
-        {nextTides.length > 0 && (
+        {currentData.nextTides.length > 0 && (
           <div className="mt-4">
             <div className="bg-slate-50 p-3 rounded-lg">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-xs text-slate-600">Grafik 24 Jam</span>
               </div>
               <div className="relative h-12 bg-gradient-to-r from-blue-200 via-blue-300 to-blue-200 rounded overflow-hidden">
-                {nextTides.map((tide, index) => (
+                {currentData.nextTides.map((tide, index) => (
                   <div
-                    key={tide.id}
+                    key={index}
                     className={`absolute w-1.5 rounded-full ${
-                      tide.tide_type === 'high' ? 'bg-blue-600' : 'bg-blue-400'
+                      tide.type === 'high' ? 'bg-blue-600' : 'bg-blue-400'
                     }`}
                     style={{
-                      left: `${(index * 25)}%`,
-                      height: `${Math.max(20, (tide.tide_height_m / 4) * 100)}%`,
+                      left: `${(index * 20)}%`,
+                      height: `${Math.max(20, (tide.height / 3) * 100)}%`,
                       bottom: '0',
                     }}
                   />

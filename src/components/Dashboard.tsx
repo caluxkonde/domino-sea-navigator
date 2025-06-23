@@ -9,6 +9,7 @@ import ShipStatus from './ShipStatus';
 import NavigationMap from './NavigationMap';
 import ShipManagement from './ShipManagement';
 import ContractManagement from './ContractManagement';
+import WeatherInfo from './WeatherInfo';
 import AppSidebar from './AppSidebar';
 
 const Dashboard = () => {
@@ -17,6 +18,23 @@ const Dashboard = () => {
 
   const renderContent = () => {
     switch (activeTab) {
+      case 'tides':
+        return (
+          <div className="p-6">
+            <div className="mb-6">
+              <h1 className="text-2xl font-bold text-slate-800">Pasang Surut Real-time</h1>
+              <p className="text-slate-600">Data pasang surut, cuaca, dan kondisi maritim terkini</p>
+            </div>
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+              <div className="space-y-6">
+                <TidalInfo />
+              </div>
+              <div className="space-y-6">
+                <WeatherInfo />
+              </div>
+            </div>
+          </div>
+        );
       case 'ships':
         return (
           <div className="p-6">
@@ -64,6 +82,9 @@ const Dashboard = () => {
               <div className="order-3">
                 <TidalInfo />
               </div>
+              <div className="order-4 xl:col-span-2 lg:col-span-1">
+                <WeatherInfo />
+              </div>
             </div>
           </div>
         );
@@ -84,7 +105,13 @@ const Dashboard = () => {
                   <SidebarTrigger className="lg:hidden" />
                   <div className="hidden sm:block">
                     <nav className="text-sm text-slate-500">
-                      <span className="capitalize">{activeTab === 'overview' ? 'Dashboard' : activeTab}</span>
+                      <span className="capitalize">
+                        {activeTab === 'overview' ? 'Dashboard' : 
+                         activeTab === 'tides' ? 'Pasang Surut' :
+                         activeTab === 'ships' ? 'Manajemen Kapal' :
+                         activeTab === 'contracts' ? 'Kontrak Nahkoda' :
+                         activeTab === 'routes' ? 'Rute & Navigasi' : activeTab}
+                      </span>
                     </nav>
                   </div>
                 </div>
