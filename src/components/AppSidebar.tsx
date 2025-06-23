@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Ship, Settings, Route, FileText, Waves, Sun } from 'lucide-react';
+import { Ship, Settings, Route, FileText, Waves, Sun, Shield, User } from 'lucide-react';
 import {
   Sidebar,
   SidebarContent,
@@ -11,6 +11,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from '@/components/ui/sidebar';
+import { useUserRoles } from '@/hooks/useUserRoles';
 
 interface AppSidebarProps {
   activeTab: string;
@@ -18,6 +19,8 @@ interface AppSidebarProps {
 }
 
 const AppSidebar = ({ activeTab, onTabChange }: AppSidebarProps) => {
+  const { checkIsAdmin, loading } = useUserRoles();
+
   const menuItems = [
     {
       id: 'overview',
@@ -48,6 +51,21 @@ const AppSidebar = ({ activeTab, onTabChange }: AppSidebarProps) => {
       label: 'Kontrak Nahkoda',
       icon: FileText,
       description: 'Kelola kontrak nahkoda'
+    },
+    {
+      id: 'profile',
+      label: 'Profil Saya',
+      icon: User,
+      description: 'Informasi akun dan kontrak'
+    }
+  ];
+
+  const adminMenuItems = [
+    {
+      id: 'admin',
+      label: 'Panel Admin',
+      icon: Shield,
+      description: 'Kelola persetujuan kontrak'
     }
   ];
 
@@ -106,6 +124,48 @@ const AppSidebar = ({ activeTab, onTabChange }: AppSidebarProps) => {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+
+        {!loading && checkIsAdmin() && (
+          <SidebarGroup>
+            <SidebarGroupLabel className="text-slate-500 font-medium">
+              Administrator
+            </SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {adminMenuItems.map((item) => {
+                  const Icon = item.icon;
+                  const isActive = activeTab === item.id;
+                  
+                  return (
+                    <SidebarMenuItem key={item.id}>
+                      <SidebarMenuButton
+                        onClick={() => onTabChange(item.id)}
+                        className={`w-full justify-start p-3 rounded-lg transition-all duration-200 group ${
+                          isActive
+                            ? 'bg-purple-50 text-purple-700 border-purple-200 shadow-sm'
+                            : 'hover:bg-slate-50 text-slate-700 hover:text-slate-900'
+                        }`}
+                      >
+                        <Icon className={`h-5 w-5 mr-3 ${
+                          isActive ? 'text-purple-600' : 'text-slate-500 group-hover:text-slate-700'
+                        }`} />
+                        <div className="flex flex-col items-start">
+                          <span className="text-sm font-medium">{item.label}</span>
+                          <span className="text-xs text-slate-500 mt-0.5 hidden lg:block">
+                            {item.description}
+                          </span>
+                        </div>
+                        {isActive && (
+                          <div className="ml-auto w-2 h-2 bg-purple-600 rounded-full"></div>
+                        )}
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  );
+                })}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
       </SidebarContent>
     </Sidebar>
   );

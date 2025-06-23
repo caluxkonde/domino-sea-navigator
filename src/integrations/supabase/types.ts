@@ -46,6 +46,7 @@ export type Database = {
       }
       contracts: {
         Row: {
+          admin_notes: string | null
           contract_type: string
           created_at: string | null
           duration_months: number
@@ -56,6 +57,8 @@ export type Database = {
           payment_proof_url: string | null
           payment_status: string
           price: number
+          reviewed_at: string | null
+          reviewed_by: string | null
           start_date: string
           status: string
           updated_at: string | null
@@ -63,6 +66,7 @@ export type Database = {
           whatsapp_number: string | null
         }
         Insert: {
+          admin_notes?: string | null
           contract_type: string
           created_at?: string | null
           duration_months: number
@@ -73,6 +77,8 @@ export type Database = {
           payment_proof_url?: string | null
           payment_status?: string
           price: number
+          reviewed_at?: string | null
+          reviewed_by?: string | null
           start_date?: string
           status?: string
           updated_at?: string | null
@@ -80,6 +86,7 @@ export type Database = {
           whatsapp_number?: string | null
         }
         Update: {
+          admin_notes?: string | null
           contract_type?: string
           created_at?: string | null
           duration_months?: number
@@ -90,6 +97,8 @@ export type Database = {
           payment_proof_url?: string | null
           payment_status?: string
           price?: number
+          reviewed_at?: string | null
+          reviewed_by?: string | null
           start_date?: string
           status?: string
           updated_at?: string | null
@@ -277,6 +286,27 @@ export type Database = {
         }
         Relationships: []
       }
+      user_roles: {
+        Row: {
+          created_at: string | null
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
       voyage_logs: {
         Row: {
           heading_degrees: number | null
@@ -343,11 +373,60 @@ export type Database = {
           },
         ]
       }
+      whatsapp_notifications: {
+        Row: {
+          contract_id: string | null
+          created_at: string | null
+          error_message: string | null
+          id: string
+          message: string
+          phone_number: string
+          sent_at: string | null
+          status: string
+        }
+        Insert: {
+          contract_id?: string | null
+          created_at?: string | null
+          error_message?: string | null
+          id?: string
+          message: string
+          phone_number: string
+          sent_at?: string | null
+          status?: string
+        }
+        Update: {
+          contract_id?: string | null
+          created_at?: string | null
+          error_message?: string | null
+          id?: string
+          message?: string
+          phone_number?: string
+          sent_at?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "whatsapp_notifications_contract_id_fkey"
+            columns: ["contract_id"]
+            isOneToOne: false
+            referencedRelation: "contracts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
+      accept_contract: {
+        Args: {
+          contract_id_param: string
+          admin_id_param: string
+          admin_notes_param?: string
+        }
+        Returns: Json
+      }
       get_contracts_expiring_soon: {
         Args: Record<PropertyKey, never>
         Returns: {
@@ -359,9 +438,24 @@ export type Database = {
           days_until_expiry: number
         }[]
       }
+      has_role: {
+        Args: {
+          _user_id: string
+          _role: Database["public"]["Enums"]["app_role"]
+        }
+        Returns: boolean
+      }
+      reject_contract: {
+        Args: {
+          contract_id_param: string
+          admin_id_param: string
+          admin_notes_param?: string
+        }
+        Returns: Json
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "user"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -476,6 +570,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "user"],
+    },
   },
 } as const
