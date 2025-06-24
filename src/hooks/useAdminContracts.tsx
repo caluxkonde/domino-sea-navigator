@@ -33,23 +33,44 @@ export const useAdminContracts = () => {
 
   const fetchPendingContracts = async () => {
     try {
-      const { data, error } = await supabase
+      console.log('Fetching pending contracts...');
+      
+      // First, let's try a simpler query to get contracts with user info
+      const { data: contractsData, error: contractsError } = await supabase
         .from('contracts')
-        .select(`
-          *,
-          profiles!inner (
-            full_name,
-            email
-          )
-        `)
+        .select('*')
         .eq('payment_status', 'pending')
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
-      
-      // Type assertion to match our interface
-      const typedData = data as AdminContract[];
-      setContracts(typedData || []);
+      if (contractsError) {
+        console.error('Error fetching contracts:', contractsError);
+        throw contractsError;
+      }
+
+      console.log('Contracts data:', contractsData);
+
+      // Then get profiles for each user
+      const contractsWithProfiles = await Promise.all(
+        (contractsData || []).map(async (contract) => {
+          const { data: profileData, error: profileError } = await supabase
+            .from('profiles')
+            .select('full_name, email')
+            .eq('id', contract.user_id)
+            .single();
+
+          if (profileError) {
+            console.error('Error fetching profile for user:', contract.user_id, profileError);
+          }
+
+          return {
+            ...contract,
+            profiles: profileData || undefined
+          } as AdminContract;
+        })
+      );
+
+      console.log('Contracts with profiles:', contractsWithProfiles);
+      setContracts(contractsWithProfiles);
     } catch (error) {
       console.error('Error fetching contracts:', error);
       toast({
@@ -66,15 +87,37 @@ export const useAdminContracts = () => {
     if (!user) return false;
 
     try {
+      console.log('Accepting contract:', contractId, 'with notes:', adminNotes);
+      
       const { data, error } = await supabase.rpc('accept_contract', {
         contract_id_param: contractId,
         admin_id_param: user.id,
         admin_notes_param: adminNotes
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('RPC error:', error);
+        throw error;
+      }
 
-      const response = data as unknown as ContractResponse;
+      console.log('Accept contract response:', data);
+
+      // Handle the response - it could be a JSON object or string
+      let response: ContractResponse;
+      
+      if (typeof data === 'string') {
+        try {
+          response = JSON.parse(data);
+        } catch (e) {
+          console.error('Failed to parse response:', data);
+          throw new Error('Invalid response format');
+        }
+      } else if (typeof data === 'object' && data !== null) {
+        response = data as ContractResponse;
+      } else {
+        throw new Error('Unexpected response format');
+      }
+
       if (response.success) {
         toast({
           title: "Berhasil",
@@ -83,7 +126,7 @@ export const useAdminContracts = () => {
         await fetchPendingContracts();
         return true;
       } else {
-        throw new Error(response.error);
+        throw new Error(response.error || 'Unknown error occurred');
       }
     } catch (error: any) {
       console.error('Error accepting contract:', error);
@@ -100,15 +143,37 @@ export const useAdminContracts = () => {
     if (!user) return false;
 
     try {
+      console.log('Rejecting contract:', contractId, 'with notes:', adminNotes);
+      
       const { data, error } = await supabase.rpc('reject_contract', {
         contract_id_param: contractId,
         admin_id_param: user.id,
         admin_notes_param: adminNotes
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('RPC error:', error);
+        throw error;
+      }
 
-      const response = data as unknown as ContractResponse;
+      console.log('Reject contract response:', data);
+
+      // Handle the response - it could be a JSON object or string
+      let response: ContractResponse;
+      
+      if (typeof data === 'string') {
+        try {
+          response = JSON.parse(data);
+        } catch (e) {
+          console.error('Failed to parse response:', data);
+          throw new Error('Invalid response format');
+        }
+      } else if (typeof data === 'object' && data !== null) {
+        response = data as ContractResponse;
+      } else {
+        throw new Error('Unexpected response format');
+      }
+
       if (response.success) {
         toast({
           title: "Berhasil",
@@ -117,7 +182,7 @@ export const useAdminContracts = () => {
         await fetchPendingContracts();
         return true;
       } else {
-        throw new Error(response.error);
+        throw new Error(response.error || 'Unknown error occurred');
       }
     } catch (error: any) {
       console.error('Error rejecting contract:', error);
