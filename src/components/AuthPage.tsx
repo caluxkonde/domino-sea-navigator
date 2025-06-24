@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Ship, Waves, LogIn, UserPlus } from 'lucide-react';
+import { Ship, Waves, LogIn, UserPlus, Calendar } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -12,6 +12,7 @@ const AuthPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
+  const [dateOfBirth, setDateOfBirth] = useState('');
   const [loading, setLoading] = useState(false);
   const { signIn, signUp } = useAuth();
   const { toast } = useToast();
@@ -28,9 +29,20 @@ const AuthPage = () => {
             description: "Nama lengkap diperlukan untuk mendaftar",
             variant: "destructive",
           });
+          setLoading(false);
           return;
         }
-        const { error } = await signUp(email, password, fullName);
+        if (!dateOfBirth) {
+          toast({
+            title: "Error", 
+            description: "Tanggal lahir diperlukan untuk mendaftar",
+            variant: "destructive",
+          });
+          setLoading(false);
+          return;
+        }
+        
+        const { error } = await signUp(email, password, fullName, dateOfBirth);
         if (error) {
           toast({
             title: "Error Mendaftar",
@@ -40,9 +52,14 @@ const AuthPage = () => {
         } else {
           toast({
             title: "Berhasil Mendaftar",
-            description: "Akun Anda telah dibuat. Silakan masuk.",
+            description: "Akun Anda telah dibuat. Silakan periksa email untuk verifikasi.",
           });
           setIsSignUp(false);
+          // Reset form
+          setEmail('');
+          setPassword('');
+          setFullName('');
+          setDateOfBirth('');
         }
       } else {
         const { error } = await signIn(email, password);
@@ -56,6 +73,11 @@ const AuthPage = () => {
       }
     } catch (error) {
       console.error('Auth error:', error);
+      toast({
+        title: "Error",
+        description: "Terjadi kesalahan yang tidak terduga",
+        variant: "destructive",
+      });
     } finally {
       setLoading(false);
     }
@@ -93,17 +115,33 @@ const AuthPage = () => {
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
               {isSignUp && (
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-slate-700">Nama Lengkap</label>
-                  <Input
-                    type="text"
-                    placeholder="Kapten Ahok"
-                    value={fullName}
-                    onChange={(e) => setFullName(e.target.value)}
-                    className="border-slate-200 focus:border-blue-400 focus:ring-blue-400"
-                    required
-                  />
-                </div>
+                <>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-slate-700">Nama Lengkap</label>
+                    <Input
+                      type="text"
+                      placeholder="Masukkan nama lengkap Anda"
+                      value={fullName}
+                      onChange={(e) => setFullName(e.target.value)}
+                      className="border-slate-200 focus:border-blue-400 focus:ring-blue-400"
+                      required
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-slate-700">Tanggal Lahir</label>
+                    <div className="relative">
+                      <Input
+                        type="date"
+                        value={dateOfBirth}
+                        onChange={(e) => setDateOfBirth(e.target.value)}
+                        className="border-slate-200 focus:border-blue-400 focus:ring-blue-400"
+                        required
+                      />
+                      <Calendar className="h-4 w-4 text-slate-400 absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none" />
+                    </div>
+                  </div>
+                </>
               )}
               
               <div className="space-y-2">
@@ -136,7 +174,10 @@ const AuthPage = () => {
                 disabled={loading}
               >
                 {loading ? (
-                  'Loading...'
+                  <div className="flex items-center">
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                    Loading...
+                  </div>
                 ) : isSignUp ? (
                   <>
                     <UserPlus className="h-4 w-4 mr-2" />
@@ -153,8 +194,15 @@ const AuthPage = () => {
 
             <div className="mt-6 text-center">
               <button
-                onClick={() => setIsSignUp(!isSignUp)}
-                className="text-sm text-blue-600 hover:text-blue-700"
+                onClick={() => {
+                  setIsSignUp(!isSignUp);
+                  // Reset form when switching
+                  setEmail('');
+                  setPassword('');
+                  setFullName('');
+                  setDateOfBirth('');
+                }}
+                className="text-sm text-blue-600 hover:text-blue-700 transition-colors"
               >
                 {isSignUp 
                   ? 'Sudah punya akun? Masuk di sini' 
