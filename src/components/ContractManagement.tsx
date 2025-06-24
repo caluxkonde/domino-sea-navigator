@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Plus, FileText, Calendar, CreditCard, Clock, CheckCircle, XCircle, Phone } from 'lucide-react';
+import { Plus, FileText, Calendar, CreditCard, Clock, CheckCircle, XCircle, Phone, MessageCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -44,6 +44,12 @@ const ContractManagement = () => {
       currency: 'IDR',
       minimumFractionDigits: 0
     }).format(price);
+  };
+
+  const handleWhatsAppContact = (whatsappNumber?: string) => {
+    const phone = whatsappNumber || '081991191988';
+    const message = encodeURIComponent('Halo, saya ingin menanyakan tentang kontrak berlangganan saya.');
+    window.open(`https://wa.me/${phone}?text=${message}`, '_blank');
   };
 
   if (loading) {
@@ -168,12 +174,19 @@ const ContractManagement = () => {
                   <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
                     <div className="flex items-start space-x-3">
                       <Clock className="h-5 w-5 text-amber-600 mt-0.5" />
-                      <div>
+                      <div className="flex-1">
                         <p className="font-medium text-amber-800">Menunggu Verifikasi Pembayaran</p>
-                        <p className="text-sm text-amber-700 mt-1">
-                          Silakan kirim bukti pembayaran ke WhatsApp: 
-                          <span className="font-semibold"> 081991191988</span>
+                        <p className="text-sm text-amber-700 mt-1 mb-3">
+                          Kontrak Anda sedang diproses oleh admin. Silakan tunggu konfirmasi.
                         </p>
+                        <Button
+                          onClick={() => handleWhatsAppContact(contract.whatsapp_number)}
+                          size="sm"
+                          className="bg-green-600 hover:bg-green-700 text-white"
+                        >
+                          <MessageCircle className="h-4 w-4 mr-2" />
+                          Hubungi WhatsApp
+                        </Button>
                       </div>
                     </div>
                   </div>
@@ -181,27 +194,47 @@ const ContractManagement = () => {
 
                 {contract.payment_status === 'verified' && (
                   <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                    <div className="flex items-center space-x-3">
-                      <CheckCircle className="h-5 w-5 text-green-600" />
-                      <div>
-                        <p className="font-medium text-green-800">Pembayaran Terverifikasi</p>
-                        <p className="text-sm text-green-700">Kontrak Anda sudah aktif dan dapat digunakan</p>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-3">
+                        <CheckCircle className="h-5 w-5 text-green-600" />
+                        <div>
+                          <p className="font-medium text-green-800">Pembayaran Terverifikasi</p>
+                          <p className="text-sm text-green-700">Kontrak Anda sudah aktif dan dapat digunakan</p>
+                        </div>
                       </div>
+                      <Button
+                        onClick={() => handleWhatsAppContact(contract.whatsapp_number)}
+                        size="sm"
+                        variant="outline"
+                        className="border-green-300 text-green-700 hover:bg-green-50"
+                      >
+                        <MessageCircle className="h-4 w-4 mr-2" />
+                        WhatsApp
+                      </Button>
                     </div>
                   </div>
                 )}
 
                 {contract.payment_status === 'failed' && (
                   <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-                    <div className="flex items-start space-x-3">
-                      <XCircle className="h-5 w-5 text-red-600 mt-0.5" />
-                      <div>
-                        <p className="font-medium text-red-800">Pembayaran Ditolak</p>
-                        <p className="text-sm text-red-700 mt-1">
-                          Silakan hubungi WhatsApp: 
-                          <span className="font-semibold"> 081991191988</span> untuk informasi lebih lanjut
-                        </p>
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-start space-x-3">
+                        <XCircle className="h-5 w-5 text-red-600 mt-0.5" />
+                        <div className="flex-1">
+                          <p className="font-medium text-red-800">Pembayaran Ditolak</p>
+                          <p className="text-sm text-red-700 mt-1 mb-3">
+                            Kontrak Anda ditolak. Silakan hubungi admin untuk informasi lebih lanjut.
+                          </p>
+                        </div>
                       </div>
+                      <Button
+                        onClick={() => handleWhatsAppContact('081991191988')}
+                        size="sm"
+                        className="bg-green-600 hover:bg-green-700 text-white"
+                      >
+                        <MessageCircle className="h-4 w-4 mr-2" />
+                        Hubungi Admin
+                      </Button>
                     </div>
                   </div>
                 )}

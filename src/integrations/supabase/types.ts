@@ -107,6 +107,50 @@ export type Database = {
         }
         Relationships: []
       }
+      email_notifications: {
+        Row: {
+          contract_id: string | null
+          created_at: string | null
+          email_address: string
+          error_message: string | null
+          id: string
+          message: string
+          sent_at: string | null
+          status: string
+          subject: string
+        }
+        Insert: {
+          contract_id?: string | null
+          created_at?: string | null
+          email_address: string
+          error_message?: string | null
+          id?: string
+          message: string
+          sent_at?: string | null
+          status?: string
+          subject: string
+        }
+        Update: {
+          contract_id?: string | null
+          created_at?: string | null
+          email_address?: string
+          error_message?: string | null
+          id?: string
+          message?: string
+          sent_at?: string | null
+          status?: string
+          subject?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_notifications_contract_id_fkey"
+            columns: ["contract_id"]
+            isOneToOne: false
+            referencedRelation: "contracts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -380,6 +424,7 @@ export type Database = {
           error_message: string | null
           id: string
           message: string
+          notification_for: string | null
           phone_number: string
           sent_at: string | null
           status: string
@@ -390,6 +435,7 @@ export type Database = {
           error_message?: string | null
           id?: string
           message: string
+          notification_for?: string | null
           phone_number: string
           sent_at?: string | null
           status?: string
@@ -400,6 +446,7 @@ export type Database = {
           error_message?: string | null
           id?: string
           message?: string
+          notification_for?: string | null
           phone_number?: string
           sent_at?: string | null
           status?: string

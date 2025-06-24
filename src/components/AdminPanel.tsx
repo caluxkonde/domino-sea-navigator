@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { CheckCircle, XCircle, FileText, User, Calendar, CreditCard, Phone, MessageSquare } from 'lucide-react';
+import { CheckCircle, XCircle, FileText, User, Calendar, CreditCard, Phone, MessageSquare, MessageCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -33,6 +33,12 @@ const AdminPanel = () => {
       setAdminNotes('');
     }
     setActionLoading(false);
+  };
+
+  const handleWhatsAppContact = (whatsappNumber?: string) => {
+    if (!whatsappNumber) return;
+    const message = encodeURIComponent('Halo, ini adalah admin Nahkodaku. Saya ingin menghubungi Anda terkait kontrak berlangganan Anda.');
+    window.open(`https://wa.me/${whatsappNumber}?text=${message}`, '_blank');
   };
 
   const formatPrice = (price: number) => {
@@ -163,14 +169,24 @@ const AdminPanel = () => {
                   </div>
 
                   {contract.whatsapp_number && (
-                    <div className="flex items-center space-x-3 text-sm">
-                      <div className="bg-slate-100 p-1.5 rounded">
-                        <Phone className="h-4 w-4 text-slate-600" />
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-3 text-sm">
+                        <div className="bg-slate-100 p-1.5 rounded">
+                          <Phone className="h-4 w-4 text-slate-600" />
+                        </div>
+                        <div>
+                          <p className="text-slate-500">WhatsApp</p>
+                          <p className="font-medium text-slate-700">{contract.whatsapp_number}</p>
+                        </div>
                       </div>
-                      <div>
-                        <p className="text-slate-500">WhatsApp</p>
-                        <p className="font-medium text-slate-700">{contract.whatsapp_number}</p>
-                      </div>
+                      <Button
+                        onClick={() => handleWhatsAppContact(contract.whatsapp_number)}
+                        size="sm"
+                        variant="outline"
+                        className="text-green-600 border-green-300 hover:bg-green-50"
+                      >
+                        <MessageCircle className="h-4 w-4" />
+                      </Button>
                     </div>
                   )}
                 </div>
