@@ -113,7 +113,7 @@ export const useAdminContracts = () => {
           throw new Error('Invalid response format');
         }
       } else if (typeof data === 'object' && data !== null) {
-        response = data as ContractResponse;
+        response = data as unknown as ContractResponse;
       } else {
         throw new Error('Unexpected response format');
       }
@@ -169,7 +169,7 @@ export const useAdminContracts = () => {
           throw new Error('Invalid response format');
         }
       } else if (typeof data === 'object' && data !== null) {
-        response = data as ContractResponse;
+        response = data as unknown as ContractResponse;
       } else {
         throw new Error('Unexpected response format');
       }
