@@ -1,16 +1,36 @@
 
 import React from 'react';
-import { Ship, Settings, Route, FileText, Waves, Sun, Shield, User } from 'lucide-react';
 import {
   Sidebar,
   SidebarContent,
+  SidebarHeader,
+  SidebarMenu,
+  SidebarMenuItem,
+  SidebarMenuButton,
+  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
 } from '@/components/ui/sidebar';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import {
+  Ship,
+  Waves,
+  BarChart3,
+  MapPin,
+  FileText,
+  Users,
+  Settings,
+  LogOut,
+  User,
+  Newspaper,
+  FileUser,
+  Award,
+  Trophy,
+  Shield,
+} from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
 import { useUserRoles } from '@/hooks/useUserRoles';
 
 interface AppSidebarProps {
@@ -19,154 +39,230 @@ interface AppSidebarProps {
 }
 
 const AppSidebar = ({ activeTab, onTabChange }: AppSidebarProps) => {
-  const { checkIsAdmin, loading } = useUserRoles();
+  const { user, signOut } = useAuth();
+  const { isAdmin, loading: rolesLoading } = useUserRoles();
 
   const menuItems = [
     {
       id: 'overview',
       label: 'Dashboard',
-      icon: Sun,
-      description: 'Ringkasan umum sistem'
-    },
-    {
-      id: 'tides',
-      label: 'Pasang Surut',
-      icon: Waves,
-      description: 'Data pasang surut real-time'
+      icon: BarChart3,
+      description: 'Ringkasan aktivitas'
     },
     {
       id: 'ships',
       label: 'Manajemen Kapal',
-      icon: Settings,
+      icon: Ship,
       description: 'Kelola data kapal'
     },
     {
       id: 'routes',
-      label: 'Rute & Navigasi',
-      icon: Route,
-      description: 'Manajemen rute pelayaran'
+      label: 'Peta Navigasi',
+      icon: MapPin,
+      description: 'Rute dan navigasi'
+    },
+    {
+      id: 'tides',
+      label: 'Info Pasang Surut',
+      icon: Waves,
+      description: 'Data BMKG'
     },
     {
       id: 'contracts',
-      label: 'Kontrak Nahkoda',
+      label: 'Kontrak',
       icon: FileText,
-      description: 'Kelola kontrak nahkoda'
+      description: 'Manajemen kontrak'
     },
-    {
-      id: 'profile',
-      label: 'Profil Saya',
-      icon: User,
-      description: 'Informasi akun dan kontrak'
-    }
   ];
 
-  const adminMenuItems = [
+  const mediaItems = [
     {
+      id: 'blog',
+      label: 'Blog & Lowongan',
+      icon: Newspaper,
+      description: 'Info dan pekerjaan'
+    },
+    {
+      id: 'cv-builder',
+      label: 'CV Builder',
+      icon: FileUser,
+      description: 'Buat CV profesional'
+    },
+    {
+      id: 'certifications',
+      label: 'Sertifikasi',
+      icon: Award,
+      description: 'Program sertifikasi'
+    },
+    {
+      id: 'leaderboard',
+      label: 'Leaderboard',
+      icon: Trophy,
+      description: 'Peringkat pengguna'
+    },
+  ];
+
+  const accountItems = [
+    {
+      id: 'profile',
+      label: 'Profil',
+      icon: User,
+      description: 'Pengaturan akun'
+    },
+  ];
+
+  // Add admin menu if user is admin
+  if (isAdmin && !rolesLoading) {
+    accountItems.unshift({
       id: 'admin',
       label: 'Panel Admin',
       icon: Shield,
-      description: 'Kelola persetujuan kontrak'
+      description: 'Kelola sistem'
+    });
+  }
+
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+    } catch (error) {
+      console.error('Sign out error:', error);
     }
-  ];
+  };
 
   return (
-    <Sidebar className="border-r border-slate-200 bg-white/80 backdrop-blur-sm">
-      <SidebarContent>
-        <div className="p-4 border-b border-slate-200">
-          <div className="flex items-center space-x-3">
-            <div className="relative">
-              <Ship className="h-8 w-8 text-blue-600" />
-              <Waves className="h-4 w-4 text-blue-400 absolute -bottom-1 -right-1" />
-            </div>
-            <div>
-              <h2 className="text-lg font-bold text-slate-800">NaviMarine</h2>
-              <p className="text-xs text-slate-600">Sistem Navigasi</p>
-            </div>
+    <Sidebar className="border-r border-slate-200">
+      <SidebarHeader className="border-b border-slate-200 p-6">
+        <div className="flex items-center space-x-2">
+          <div className="relative">
+            <Ship className="h-8 w-8 text-blue-600" />
+            <Waves className="h-4 w-4 text-blue-400 absolute -bottom-1 -right-1" />
+          </div>
+          <div>
+            <h1 className="text-xl font-bold text-slate-800">NaviMarine</h1>
+            <p className="text-xs text-slate-500">Sistem Navigasi</p>
           </div>
         </div>
         
+        {/* User Info */}
+        <div className="mt-4 p-3 bg-slate-50 rounded-lg">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-slate-800">
+                {user?.user_metadata?.full_name || 'Pengguna'}
+              </p>
+              <p className="text-xs text-slate-500">{user?.email}</p>
+            </div>
+            {isAdmin && !rolesLoading && (
+              <Badge variant="default" className="text-xs bg-red-100 text-red-800">
+                Admin
+              </Badge>
+            )}
+          </div>
+        </div>
+      </SidebarHeader>
+
+      <SidebarContent className="px-4 py-2">
+        {/* Main Navigation */}
         <SidebarGroup>
-          <SidebarGroupLabel className="text-slate-500 font-medium">
-            Menu Utama
+          <SidebarGroupLabel className="text-slate-600 font-medium">
+            Navigasi Utama
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {menuItems.map((item) => {
-                const Icon = item.icon;
-                const isActive = activeTab === item.id;
-                
-                return (
-                  <SidebarMenuItem key={item.id}>
-                    <SidebarMenuButton
-                      onClick={() => onTabChange(item.id)}
-                      className={`w-full justify-start p-3 rounded-lg transition-all duration-200 group ${
-                        isActive
-                          ? 'bg-blue-50 text-blue-700 border-blue-200 shadow-sm'
-                          : 'hover:bg-slate-50 text-slate-700 hover:text-slate-900'
-                      }`}
-                    >
-                      <Icon className={`h-5 w-5 mr-3 ${
-                        isActive ? 'text-blue-600' : 'text-slate-500 group-hover:text-slate-700'
-                      }`} />
-                      <div className="flex flex-col items-start">
-                        <span className="text-sm font-medium">{item.label}</span>
-                        <span className="text-xs text-slate-500 mt-0.5 hidden lg:block">
-                          {item.description}
-                        </span>
-                      </div>
-                      {isActive && (
-                        <div className="ml-auto w-2 h-2 bg-blue-600 rounded-full"></div>
-                      )}
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                );
-              })}
+              {menuItems.map((item) => (
+                <SidebarMenuItem key={item.id}>
+                  <SidebarMenuButton
+                    onClick={() => onTabChange(item.id)}
+                    isActive={activeTab === item.id}
+                    className="w-full justify-start group"
+                  >
+                    <item.icon className="h-4 w-4 mr-3" />
+                    <div className="flex-1">
+                      <p className="text-sm font-medium">{item.label}</p>
+                      <p className="text-xs text-slate-500 group-hover:text-slate-600">
+                        {item.description}
+                      </p>
+                    </div>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
 
-        {!loading && checkIsAdmin() && (
-          <SidebarGroup>
-            <SidebarGroupLabel className="text-slate-500 font-medium">
-              Administrator
-            </SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                {adminMenuItems.map((item) => {
-                  const Icon = item.icon;
-                  const isActive = activeTab === item.id;
-                  
-                  return (
-                    <SidebarMenuItem key={item.id}>
-                      <SidebarMenuButton
-                        onClick={() => onTabChange(item.id)}
-                        className={`w-full justify-start p-3 rounded-lg transition-all duration-200 group ${
-                          isActive
-                            ? 'bg-purple-50 text-purple-700 border-purple-200 shadow-sm'
-                            : 'hover:bg-slate-50 text-slate-700 hover:text-slate-900'
-                        }`}
-                      >
-                        <Icon className={`h-5 w-5 mr-3 ${
-                          isActive ? 'text-purple-600' : 'text-slate-500 group-hover:text-slate-700'
-                        }`} />
-                        <div className="flex flex-col items-start">
-                          <span className="text-sm font-medium">{item.label}</span>
-                          <span className="text-xs text-slate-500 mt-0.5 hidden lg:block">
-                            {item.description}
-                          </span>
-                        </div>
-                        {isActive && (
-                          <div className="ml-auto w-2 h-2 bg-purple-600 rounded-full"></div>
-                        )}
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  );
-                })}
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        )}
+        {/* Media & Tools */}
+        <SidebarGroup>
+          <SidebarGroupLabel className="text-slate-600 font-medium">
+            Media & Tools
+          </SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {mediaItems.map((item) => (
+                <SidebarMenuItem key={item.id}>
+                  <SidebarMenuButton
+                    onClick={() => onTabChange(item.id)}
+                    isActive={activeTab === item.id}
+                    className="w-full justify-start group"
+                  >
+                    <item.icon className="h-4 w-4 mr-3" />
+                    <div className="flex-1">
+                      <p className="text-sm font-medium">{item.label}</p>
+                      <p className="text-xs text-slate-500 group-hover:text-slate-600">
+                        {item.description}
+                      </p>
+                    </div>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        {/* Account */}
+        <SidebarGroup>
+          <SidebarGroupLabel className="text-slate-600 font-medium">
+            Akun
+          </SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {accountItems.map((item) => (
+                <SidebarMenuItem key={item.id}>
+                  <SidebarMenuButton
+                    onClick={() => onTabChange(item.id)}
+                    isActive={activeTab === item.id}
+                    className="w-full justify-start group"
+                  >
+                    <item.icon className="h-4 w-4 mr-3" />
+                    <div className="flex-1">
+                      <p className="text-sm font-medium">{item.label}</p>
+                      <p className="text-xs text-slate-500 group-hover:text-slate-600">
+                        {item.description}
+                      </p>
+                    </div>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
       </SidebarContent>
+
+      <SidebarFooter className="border-t border-slate-200 p-4">
+        <Button
+          onClick={handleSignOut}
+          variant="outline"
+          size="sm"
+          className="w-full justify-start text-slate-600 hover:text-slate-800"
+        >
+          <LogOut className="h-4 w-4 mr-2" />
+          Keluar
+        </Button>
+        
+        <div className="mt-2 text-xs text-slate-400 text-center">
+          <p>NaviMarine v2.0</p>
+          <p>© 2024 Maritime System</p>
+        </div>
+      </SidebarFooter>
     </Sidebar>
   );
 };

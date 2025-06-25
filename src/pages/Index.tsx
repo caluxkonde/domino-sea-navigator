@@ -11,6 +11,10 @@ import NavigationMap from '@/components/NavigationMap';
 import ContractManagement from '@/components/ContractManagement';
 import AdminPanel from '@/components/AdminPanel';
 import UserProfile from '@/components/UserProfile';
+import BlogPage from '@/components/BlogPage';
+import CVBuilder from '@/components/CVBuilder';
+import CertificationPage from '@/components/CertificationPage';
+import Leaderboard from '@/components/Leaderboard';
 import { useAuth } from '@/hooks/useAuth';
 
 const AppContent = () => {
@@ -48,6 +52,14 @@ const AppContent = () => {
         return <AdminPanel />;
       case 'profile':
         return <UserProfile />;
+      case 'blog':
+        return <BlogPage />;
+      case 'cv-builder':
+        return <CVBuilder />;
+      case 'certifications':
+        return <CertificationPage />;
+      case 'leaderboard':
+        return <Leaderboard />;
       default:
         return <Dashboard />;
     }
