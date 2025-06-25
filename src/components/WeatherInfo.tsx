@@ -6,8 +6,11 @@ import { useGeolocation } from '@/hooks/useGeolocation';
 import { useWeatherData } from '@/hooks/useWeatherData';
 
 const WeatherInfo = () => {
-  const { latitude, longitude, error: locationError, loading: locationLoading } = useGeolocation();
-  const { weatherData, loading: weatherLoading, error: weatherError } = useWeatherData(latitude, longitude);
+  const { location, error: locationError, loading: locationLoading } = useGeolocation();
+  const { weatherData, loading: weatherLoading, error: weatherError } = useWeatherData(
+    location?.latitude || null, 
+    location?.longitude || null
+  );
 
   if (locationLoading || weatherLoading) {
     return (

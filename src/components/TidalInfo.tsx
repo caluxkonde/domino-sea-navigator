@@ -8,12 +8,8 @@ import { useGeolocation } from '@/hooks/useGeolocation';
 
 const TidalInfo = () => {
   const [selectedLocation, setSelectedLocation] = useState('current');
-  const { latitude, longitude } = useGeolocation();
-  const { tidalData, realTimeTidalData, loading } = useTidalData(
-    selectedLocation === 'current' ? undefined : selectedLocation,
-    selectedLocation === 'current' ? latitude : null,
-    selectedLocation === 'current' ? longitude : null
-  );
+  const { location } = useGeolocation();
+  const { tidalData, loading } = useTidalData();
 
   // Data lokasi berdasarkan negara dan kota
   const locations = {
@@ -54,7 +50,8 @@ const TidalInfo = () => {
     );
   }
 
-  const currentData = realTimeTidalData || {
+  // Create mock current data from tidal data
+  const currentData = {
     currentTide: tidalData[0] ? {
       type: tidalData[0].tide_type,
       height: tidalData[0].tide_height_m,
@@ -165,43 +162,41 @@ const TidalInfo = () => {
         )}
 
         {/* Sun & Moon Info */}
-        {realTimeTidalData && (
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <div className="bg-gradient-to-r from-orange-50 to-yellow-100 p-3 rounded-lg border border-orange-200">
-              <div className="flex items-center space-x-2 mb-1">
-                <Sunrise className="h-4 w-4 text-orange-600" />
-                <span className="text-xs font-medium text-orange-800">Matahari Terbit</span>
-              </div>
-              <p className="text-sm font-semibold text-orange-800">
-                {new Date(realTimeTidalData.sunTimes.sunrise).toLocaleTimeString('id-ID', {
-                  hour: '2-digit',
-                  minute: '2-digit'
-                })}
-              </p>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div className="bg-gradient-to-r from-orange-50 to-yellow-100 p-3 rounded-lg border border-orange-200">
+            <div className="flex items-center space-x-2 mb-1">
+              <Sunrise className="h-4 w-4 text-orange-600" />
+              <span className="text-xs font-medium text-orange-800">Matahari Terbit</span>
             </div>
-
-            <div className="bg-gradient-to-r from-purple-50 to-indigo-100 p-3 rounded-lg border border-purple-200">
-              <div className="flex items-center space-x-2 mb-1">
-                <Moon className="h-4 w-4 text-purple-600" />
-                <span className="text-xs font-medium text-purple-800">Fase Bulan</span>
-              </div>
-              <p className="text-sm font-semibold text-purple-800">{realTimeTidalData.moonPhase}</p>
-            </div>
-
-            <div className="bg-gradient-to-r from-red-50 to-pink-100 p-3 rounded-lg border border-red-200">
-              <div className="flex items-center space-x-2 mb-1">
-                <Sunset className="h-4 w-4 text-red-600" />
-                <span className="text-xs font-medium text-red-800">Matahari Tenggelam</span>
-              </div>
-              <p className="text-sm font-semibold text-red-800">
-                {new Date(realTimeTidalData.sunTimes.sunset).toLocaleTimeString('id-ID', {
-                  hour: '2-digit',
-                  minute: '2-digit'
-                })}
-              </p>
-            </div>
+            <p className="text-sm font-semibold text-orange-800">
+              {new Date(currentData.sunTimes.sunrise).toLocaleTimeString('id-ID', {
+                hour: '2-digit',
+                minute: '2-digit'
+              })}
+            </p>
           </div>
-        )}
+
+          <div className="bg-gradient-to-r from-purple-50 to-indigo-100 p-3 rounded-lg border border-purple-200">
+            <div className="flex items-center space-x-2 mb-1">
+              <Moon className="h-4 w-4 text-purple-600" />
+              <span className="text-xs font-medium text-purple-800">Fase Bulan</span>
+            </div>
+            <p className="text-sm font-semibold text-purple-800">{currentData.moonPhase}</p>
+          </div>
+
+          <div className="bg-gradient-to-r from-red-50 to-pink-100 p-3 rounded-lg border border-red-200">
+            <div className="flex items-center space-x-2 mb-1">
+              <Sunset className="h-4 w-4 text-red-600" />
+              <span className="text-xs font-medium text-red-800">Matahari Tenggelam</span>
+            </div>
+            <p className="text-sm font-semibold text-red-800">
+              {new Date(currentData.sunTimes.sunset).toLocaleTimeString('id-ID', {
+                hour: '2-digit',
+                minute: '2-digit'
+              })}
+            </p>
+          </div>
+        </div>
 
         {/* Upcoming Tides */}
         {currentData.nextTides.length > 0 && (

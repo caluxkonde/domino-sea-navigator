@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -36,7 +35,7 @@ const Leaderboard = () => {
         .from('leaderboard')
         .select(`
           *,
-          profiles!inner (
+          profiles (
             full_name,
             avatar_url,
             current_position
@@ -48,13 +47,18 @@ const Leaderboard = () => {
 
       if (error) throw error;
       
-      // Add ranking based on points
-      const rankedData = data.map((entry, index) => ({
+      // Add ranking based on points and ensure proper typing
+      const rankedData = (data || []).map((entry, index) => ({
         ...entry,
-        rank: index + 1
-      }));
+        rank: index + 1,
+        profiles: entry.profiles || { 
+          full_name: 'Pengguna', 
+          avatar_url: null, 
+          current_position: null 
+        }
+      })) as LeaderboardEntry[];
 
-      return rankedData as LeaderboardEntry[];
+      return rankedData;
     },
   });
 

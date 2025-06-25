@@ -36,10 +36,17 @@ export const useUserRoles = () => {
   };
 
   const checkIsAdmin = () => userRole === 'admin';
+  const isAdmin = userRole === 'admin';
 
   useEffect(() => {
     fetchUserRole();
   }, [user]);
 
-  return { userRole, loading, checkIsAdmin, refetchRole: fetchUserRole };
+  return { 
+    userRole, 
+    loading, 
+    isAdmin, 
+    checkIsAdmin, 
+    refetch: fetchUserRole 
+  };
 };

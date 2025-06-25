@@ -864,11 +864,13 @@ export type Database = {
         Returns: Json
       }
       update_leaderboard_points: {
-        Args: {
-          user_id_param: string
-          points_to_add: number
-          category_param?: string
-        }
+        Args:
+          | Record<PropertyKey, never>
+          | {
+              user_id_param: string
+              points_to_add: number
+              category_param?: string
+            }
         Returns: undefined
       }
     }
