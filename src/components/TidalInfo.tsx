@@ -6,6 +6,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useTidalData } from '@/hooks/useTidalData';
 import { useGeolocation } from '@/hooks/useGeolocation';
 
+type TideStatus = 'rising' | 'falling' | 'stable';
+
 const TidalInfo = () => {
   const [selectedLocation, setSelectedLocation] = useState('current');
   const { location } = useGeolocation();
@@ -50,13 +52,29 @@ const TidalInfo = () => {
     );
   }
 
+  // Function to determine tide status based on current and next tide
+  const getTideStatus = (currentTide: any, nextTide: any): TideStatus => {
+    if (!currentTide || !nextTide) return 'stable';
+    
+    if (currentTide.tide_type === 'low' && nextTide.tide_type === 'high') {
+      return 'rising';
+    } else if (currentTide.tide_type === 'high' && nextTide.tide_type === 'low') {
+      return 'falling';
+    }
+    return 'stable';
+  };
+
   // Create mock current data from tidal data
+  const currentTide = tidalData[0] || null;
+  const nextTide = tidalData[1] || null;
+  const tideStatus = getTideStatus(currentTide, nextTide);
+
   const currentData = {
-    currentTide: tidalData[0] ? {
-      type: tidalData[0].tide_type,
-      height: tidalData[0].tide_height_m,
-      time: tidalData[0].tide_time,
-      status: 'stable' as const
+    currentTide: currentTide ? {
+      type: currentTide.tide_type,
+      height: currentTide.tide_height_m,
+      time: currentTide.tide_time,
+      status: tideStatus
     } : null,
     nextTides: tidalData.slice(1, 5).map(tide => ({
       type: tide.tide_type,
