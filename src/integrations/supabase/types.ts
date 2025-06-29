@@ -142,6 +142,7 @@ export type Database = {
           reviewed_by: string | null
           start_date: string
           status: string
+          subscription_type: string | null
           updated_at: string | null
           user_id: string
           whatsapp_number: string | null
@@ -162,6 +163,7 @@ export type Database = {
           reviewed_by?: string | null
           start_date?: string
           status?: string
+          subscription_type?: string | null
           updated_at?: string | null
           user_id: string
           whatsapp_number?: string | null
@@ -182,6 +184,55 @@ export type Database = {
           reviewed_by?: string | null
           start_date?: string
           status?: string
+          subscription_type?: string | null
+          updated_at?: string | null
+          user_id?: string
+          whatsapp_number?: string | null
+        }
+        Relationships: []
+      }
+      cv_purchases: {
+        Row: {
+          admin_notes: string | null
+          created_at: string | null
+          cv_type: string
+          id: string
+          payment_method: string | null
+          payment_proof_url: string | null
+          payment_status: string
+          price: number
+          reviewed_at: string | null
+          reviewed_by: string | null
+          updated_at: string | null
+          user_id: string
+          whatsapp_number: string | null
+        }
+        Insert: {
+          admin_notes?: string | null
+          created_at?: string | null
+          cv_type: string
+          id?: string
+          payment_method?: string | null
+          payment_proof_url?: string | null
+          payment_status?: string
+          price: number
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          updated_at?: string | null
+          user_id: string
+          whatsapp_number?: string | null
+        }
+        Update: {
+          admin_notes?: string | null
+          created_at?: string | null
+          cv_type?: string
+          id?: string
+          payment_method?: string | null
+          payment_proof_url?: string | null
+          payment_status?: string
+          price?: number
+          reviewed_at?: string | null
+          reviewed_by?: string | null
           updated_at?: string | null
           user_id?: string
           whatsapp_number?: string | null
@@ -847,6 +898,14 @@ export type Database = {
           end_date: string
           days_until_expiry: number
         }[]
+      }
+      get_user_premium_status: {
+        Args: { _user_id: string }
+        Returns: Json
+      }
+      has_premium_access: {
+        Args: { _user_id: string }
+        Returns: boolean
       }
       has_role: {
         Args: {

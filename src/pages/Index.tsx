@@ -6,7 +6,6 @@ import AuthPage from '@/components/AuthPage';
 import AppSidebar from '@/components/AppSidebar';
 import Dashboard from '@/components/Dashboard';
 import TidalInfo from '@/components/TidalInfo';
-import ShipManagement from '@/components/ShipManagement';
 import NavigationMap from '@/components/NavigationMap';
 import ContractManagement from '@/components/ContractManagement';
 import AdminPanel from '@/components/AdminPanel';
@@ -14,7 +13,9 @@ import UserProfile from '@/components/UserProfile';
 import BlogPage from '@/components/BlogPage';
 import CVBuilder from '@/components/CVBuilder';
 import CertificationPage from '@/components/CertificationPage';
-import Leaderboard from '@/components/Leaderboard';
+import PremiumUpgrade from '@/components/PremiumUpgrade';
+import PremiumStatusIndicator from '@/components/PremiumStatusIndicator';
+import AccessControl from '@/components/AccessControl';
 import { useAuth } from '@/hooks/useAuth';
 import { Toaster } from '@/components/ui/toaster';
 import { Button } from '@/components/ui/button';
@@ -25,6 +26,7 @@ const AppContent = () => {
   const [activeTab, setActiveTab] = useState('overview');
   const [darkMode, setDarkMode] = useState(false);
   const [notifications, setNotifications] = useState(3);
+  const [showPremiumUpgrade, setShowPremiumUpgrade] = useState(false);
   const { user, loading } = useAuth();
 
   if (loading) {
@@ -54,17 +56,31 @@ const AppContent = () => {
   const renderContent = () => {
     switch (activeTab) {
       case 'overview':
-        return <Dashboard />;
+        return <Dashboard onNavigateToInfo={() => setActiveTab('blog')} />;
       case 'tides':
-        return <TidalInfo />;
-      case 'ships':
-        return <ShipManagement />;
+        return (
+          <AccessControl requirePremium onUpgradeClick={() => setShowPremiumUpgrade(true)}>
+            <TidalInfo />
+          </AccessControl>
+        );
       case 'routes':
-        return <NavigationMap />;
+        return (
+          <AccessControl requirePremium onUpgradeClick={() => setShowPremiumUpgrade(true)}>
+            <NavigationMap />
+          </AccessControl>
+        );
       case 'contracts':
-        return <ContractManagement />;
+        return (
+          <AccessControl requirePremium onUpgradeClick={() => setShowPremiumUpgrade(true)}>
+            <ContractManagement />
+          </AccessControl>
+        );
       case 'admin':
-        return <AdminPanel />;
+        return (
+          <AccessControl requireAdmin>
+            <AdminPanel />
+          </AccessControl>
+        );
       case 'profile':
         return <UserProfile />;
       case 'blog':
@@ -72,11 +88,13 @@ const AppContent = () => {
       case 'cv-builder':
         return <CVBuilder />;
       case 'certifications':
-        return <CertificationPage />;
-      case 'leaderboard':
-        return <Leaderboard />;
+        return (
+          <AccessControl requirePremium onUpgradeClick={() => setShowPremiumUpgrade(true)}>
+            <CertificationPage />
+          </AccessControl>
+        );
       default:
-        return <Dashboard />;
+        return <Dashboard onNavigateToInfo={() => setActiveTab('blog')} />;
     }
   };
 
@@ -108,6 +126,8 @@ const AppContent = () => {
                 </div>
                 
                 <div className="flex items-center space-x-3">
+                  <PremiumStatusIndicator onUpgradeClick={() => setShowPremiumUpgrade(true)} />
+                  
                   <Button
                     variant="ghost"
                     size="sm"
@@ -145,7 +165,7 @@ const AppContent = () => {
               </div>
             </header>
 
-            {/* Main Content with enhanced styling */}
+            {/* Main Content */}
             <main className="flex-1 p-6 overflow-auto">
               <div className="max-w-7xl mx-auto">
                 {renderContent()}
@@ -154,6 +174,11 @@ const AppContent = () => {
           </div>
         </div>
       </div>
+      
+      <PremiumUpgrade 
+        open={showPremiumUpgrade} 
+        onOpenChange={setShowPremiumUpgrade} 
+      />
       <Toaster />
     </SidebarProvider>
   );

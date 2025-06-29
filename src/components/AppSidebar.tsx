@@ -1,3 +1,4 @@
+
 import React from 'react';
 import {
   Sidebar,
@@ -14,23 +15,21 @@ import {
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import {
-  Ship,
-  Waves,
   BarChart3,
+  Waves,
   MapPin,
   FileText,
-  Users,
-  Settings,
   LogOut,
   User,
   Newspaper,
   FileUser,
   Award,
-  Trophy,
   Shield,
+  Info,
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useUserRoles } from '@/hooks/useUserRoles';
+import { usePremiumStatus } from '@/hooks/usePremiumStatus';
 
 interface AppSidebarProps {
   activeTab: string;
@@ -40,64 +39,63 @@ interface AppSidebarProps {
 const AppSidebar = ({ activeTab, onTabChange }: AppSidebarProps) => {
   const { user, signOut } = useAuth();
   const { isAdmin, loading: rolesLoading } = useUserRoles();
+  const { premiumStatus, loading: premiumLoading } = usePremiumStatus();
 
-  const menuItems = [
+  const mainMenuItems = [
     {
       id: 'overview',
       label: 'Dashboard',
       icon: BarChart3,
-      description: 'Ringkasan aktivitas'
-    },
+      description: 'Ringkasan aktivitas',
+      requirePremium: false
+    }
+  ];
+
+  const premiumItems = [
     {
-      id: 'ships',
-      label: 'Manajemen Kapal',
-      icon: Ship,
-      description: 'Kelola data kapal'
+      id: 'tides',
+      label: 'Info Pasang Surut',
+      icon: Waves,
+      description: 'Data BMKG',
+      requirePremium: true
     },
     {
       id: 'routes',
       label: 'Peta Navigasi',
       icon: MapPin,
-      description: 'Rute dan navigasi'
-    },
-    {
-      id: 'tides',
-      label: 'Info Pasang Surut',
-      icon: Waves,
-      description: 'Data BMKG'
+      description: 'Rute dan navigasi',
+      requirePremium: true
     },
     {
       id: 'contracts',
       label: 'Kontrak',
       icon: FileText,
-      description: 'Manajemen kontrak'
-    },
-  ];
-
-  const mediaItems = [
-    {
-      id: 'blog',
-      label: 'Blog & Lowongan',
-      icon: Newspaper,
-      description: 'Info dan pekerjaan'
-    },
-    {
-      id: 'cv-builder',
-      label: 'CV Builder',
-      icon: FileUser,
-      description: 'Buat CV profesional'
+      description: 'Manajemen kontrak',
+      requirePremium: true
     },
     {
       id: 'certifications',
       label: 'Sertifikasi',
       icon: Award,
-      description: 'Program sertifikasi'
+      description: 'Program sertifikasi',
+      requirePremium: true
+    },
+  ];
+
+  const freeItems = [
+    {
+      id: 'blog',
+      label: 'Info',
+      icon: Info,
+      description: 'Informasi maritim',
+      requirePremium: false
     },
     {
-      id: 'leaderboard',
-      label: 'Leaderboard',
-      icon: Trophy,
-      description: 'Peringkat pengguna'
+      id: 'cv-builder',
+      label: 'CV Builder',
+      icon: FileUser,
+      description: 'Buat CV profesional',
+      requirePremium: false
     },
   ];
 
@@ -128,13 +126,18 @@ const AppSidebar = ({ activeTab, onTabChange }: AppSidebarProps) => {
     }
   };
 
+  const canAccessItem = (requirePremium: boolean) => {
+    if (isAdmin) return true;
+    if (!requirePremium) return true;
+    return premiumStatus.is_premium;
+  };
+
   return (
     <Sidebar className="border-r border-slate-200">
       <SidebarHeader className="border-b border-slate-200 p-6">
         <div className="flex items-center space-x-2">
           <div className="relative">
-            <Ship className="h-8 w-8 text-blue-600" />
-            <Waves className="h-4 w-4 text-blue-400 absolute -bottom-1 -right-1" />
+            <Waves className="h-8 w-8 text-blue-600" />
           </div>
           <div>
             <h1 className="text-xl font-bold text-slate-800">NaviMarine</h1>
@@ -151,11 +154,21 @@ const AppSidebar = ({ activeTab, onTabChange }: AppSidebarProps) => {
               </p>
               <p className="text-xs text-slate-500">{user?.email}</p>
             </div>
-            {isAdmin && !rolesLoading && (
-              <Badge variant="default" className="text-xs bg-red-100 text-red-800">
-                Admin
-              </Badge>
-            )}
+            <div className="flex flex-col gap-1">
+              {isAdmin && !rolesLoading && (
+                <Badge variant="default" className="text-xs bg-red-100 text-red-800">
+                  Admin
+                </Badge>
+              )}
+              {!premiumLoading && (
+                <Badge variant={premiumStatus.is_premium ? 'default' : 'secondary'} 
+                       className={`text-xs ${premiumStatus.is_premium 
+                         ? 'bg-yellow-100 text-yellow-800' 
+                         : 'bg-gray-100 text-gray-800'}`}>
+                  {premiumStatus.is_premium ? 'Premium' : 'Free'}
+                </Badge>
+              )}
+            </div>
           </div>
         </div>
       </SidebarHeader>
@@ -164,11 +177,11 @@ const AppSidebar = ({ activeTab, onTabChange }: AppSidebarProps) => {
         {/* Main Navigation */}
         <SidebarGroup>
           <SidebarGroupLabel className="text-slate-600 font-medium">
-            Navigasi Utama
+            Utama
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {menuItems.map((item) => (
+              {mainMenuItems.map((item) => (
                 <SidebarMenuItem key={item.id}>
                   <SidebarMenuButton
                     onClick={() => onTabChange(item.id)}
@@ -189,14 +202,14 @@ const AppSidebar = ({ activeTab, onTabChange }: AppSidebarProps) => {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        {/* Media & Tools */}
+        {/* Free Features */}
         <SidebarGroup>
           <SidebarGroupLabel className="text-slate-600 font-medium">
-            Media & Tools
+            Fitur Gratis
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {mediaItems.map((item) => (
+              {freeItems.map((item) => (
                 <SidebarMenuItem key={item.id}>
                   <SidebarMenuButton
                     onClick={() => onTabChange(item.id)}
@@ -206,6 +219,43 @@ const AppSidebar = ({ activeTab, onTabChange }: AppSidebarProps) => {
                     <item.icon className="h-4 w-4 mr-3" />
                     <div className="flex-1">
                       <p className="text-sm font-medium">{item.label}</p>
+                      <p className="text-xs text-slate-500 group-hover:text-slate-600">
+                        {item.description}
+                      </p>
+                    </div>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        {/* Premium Features */}
+        <SidebarGroup>
+          <SidebarGroupLabel className="text-slate-600 font-medium">
+            Fitur Premium
+          </SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {premiumItems.map((item) => (
+                <SidebarMenuItem key={item.id}>
+                  <SidebarMenuButton
+                    onClick={() => onTabChange(item.id)}
+                    isActive={activeTab === item.id}
+                    className={`w-full justify-start group ${
+                      !canAccessItem(item.requirePremium) ? 'opacity-60' : ''
+                    }`}
+                  >
+                    <item.icon className="h-4 w-4 mr-3" />
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between">
+                        <p className="text-sm font-medium">{item.label}</p>
+                        {item.requirePremium && !canAccessItem(item.requirePremium) && (
+                          <Badge variant="outline" className="text-xs">
+                            Premium
+                          </Badge>
+                        )}
+                      </div>
                       <p className="text-xs text-slate-500 group-hover:text-slate-600">
                         {item.description}
                       </p>

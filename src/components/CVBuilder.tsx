@@ -3,16 +3,16 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { FileText, Download, Eye, Plus, Trash2, Edit, Star } from 'lucide-react';
+import { FileText, Download, Eye, Plus, Trash2, Edit, Star, Crown } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
+import CVPurchaseDialog from './CVPurchaseDialog';
 
 interface CVTemplate {
   id: string;
@@ -39,6 +39,7 @@ const CVBuilder = () => {
   const [cvTitle, setCvTitle] = useState('');
   const [cvData, setCvData] = useState<any>({});
   const [isCreatingCV, setIsCreatingCV] = useState(false);
+  const [showPurchaseDialog, setShowPurchaseDialog] = useState(false);
   const { user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -172,30 +173,70 @@ const CVBuilder = () => {
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-slate-800 mb-4">CV Builder</h1>
         <p className="text-slate-600 mb-6">
-          Buat CV profesional dengan template yang tersedia dan sesuaikan dengan kebutuhan Anda
+          Buat CV profesional dengan template gratis atau upgrade ke CV premium untuk hasil yang lebih menarik
         </p>
       </div>
 
+      {/* Premium CV Section */}
+      <Card className="mb-8 border-yellow-200 bg-gradient-to-r from-yellow-50 to-orange-50">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Crown className="h-5 w-5 text-yellow-600" />
+            CV Premium Tersedia
+          </CardTitle>
+          <CardDescription>
+            Dapatkan CV profesional dengan desain eksklusif dan konsultasi personal
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+            <div className="text-center p-4 bg-white rounded-lg">
+              <Star className="h-8 w-8 mx-auto text-gray-400 mb-2" />
+              <h3 className="font-semibold">Silver CV</h3>
+              <p className="text-2xl font-bold text-blue-600">Rp 20.000</p>
+              <p className="text-sm text-gray-600">Template Profesional</p>
+            </div>
+            <div className="text-center p-4 bg-white rounded-lg border-2 border-yellow-300">
+              <Star className="h-8 w-8 mx-auto text-yellow-500 mb-2" />
+              <h3 className="font-semibold">Gold CV</h3>
+              <p className="text-2xl font-bold text-yellow-600">Rp 50.000</p>
+              <p className="text-sm text-gray-600">+ Konsultasi Personal</p>
+              <Badge className="mt-1 bg-yellow-500">Terpopuler</Badge>
+            </div>
+            <div className="text-center p-4 bg-white rounded-lg">
+              <Crown className="h-8 w-8 mx-auto text-purple-600 mb-2" />
+              <h3 className="font-semibold">Platinum CV</h3>
+              <p className="text-2xl font-bold text-purple-600">Rp 100.000</p>
+              <p className="text-sm text-gray-600">+ Revisi Unlimited</p>
+            </div>
+          </div>
+          <Button onClick={() => setShowPurchaseDialog(true)} className="w-full">
+            <Crown className="h-4 w-4 mr-2" />
+            Beli CV Premium
+          </Button>
+        </CardContent>
+      </Card>
+
       <Tabs defaultValue="templates" className="space-y-6">
         <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="templates">Template CV</TabsTrigger>
+          <TabsTrigger value="templates">Template CV Gratis</TabsTrigger>
           <TabsTrigger value="my-cvs">CV Saya</TabsTrigger>
         </TabsList>
 
         {/* Templates Tab */}
         <TabsContent value="templates" className="space-y-6">
           <div className="flex justify-between items-center">
-            <h2 className="text-2xl font-semibold">Pilih Template CV</h2>
+            <h2 className="text-2xl font-semibold">Template CV Gratis</h2>
             <Dialog open={isCreatingCV} onOpenChange={setIsCreatingCV}>
               <DialogTrigger asChild>
                 <Button className="flex items-center gap-2">
                   <Plus className="h-4 w-4" />
-                  Buat CV Baru
+                  Buat CV Gratis
                 </Button>
               </DialogTrigger>
               <DialogContent className="max-w-md">
                 <DialogHeader>
-                  <DialogTitle>Buat CV Baru</DialogTitle>
+                  <DialogTitle>Buat CV Gratis</DialogTitle>
                 </DialogHeader>
                 <div className="space-y-4">
                   <div>
@@ -253,7 +294,7 @@ const CVBuilder = () => {
                   <CardHeader>
                     <div className="flex items-center justify-between">
                       <CardTitle className="text-lg">{template.name}</CardTitle>
-                      <Star className="h-4 w-4 text-yellow-500" />
+                      <Badge variant="secondary">Gratis</Badge>
                     </div>
                     <CardDescription>{template.description}</CardDescription>
                   </CardHeader>
@@ -357,6 +398,11 @@ const CVBuilder = () => {
           )}
         </TabsContent>
       </Tabs>
+
+      <CVPurchaseDialog 
+        open={showPurchaseDialog} 
+        onOpenChange={setShowPurchaseDialog} 
+      />
     </div>
   );
 };
