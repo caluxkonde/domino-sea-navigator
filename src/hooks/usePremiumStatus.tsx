@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
+import { useUserRoles } from './useUserRoles';
 
 export interface PremiumStatus {
   is_premium: boolean;
@@ -14,10 +15,22 @@ export const usePremiumStatus = () => {
   const [premiumStatus, setPremiumStatus] = useState<PremiumStatus>({ is_premium: false });
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
+  const { isAdmin, loading: roleLoading } = useUserRoles();
 
   const fetchPremiumStatus = async () => {
     if (!user) {
       setPremiumStatus({ is_premium: false });
+      setLoading(false);
+      return;
+    }
+
+    // If user is admin, automatically grant premium access
+    if (isAdmin) {
+      setPremiumStatus({ 
+        is_premium: true,
+        subscription_type: 'admin',
+        contract_type: 'admin_access'
+      });
       setLoading(false);
       return;
     }
@@ -44,12 +57,15 @@ export const usePremiumStatus = () => {
   };
 
   useEffect(() => {
-    fetchPremiumStatus();
-  }, [user]);
+    // Wait for role loading to complete before fetching premium status
+    if (!roleLoading) {
+      fetchPremiumStatus();
+    }
+  }, [user, isAdmin, roleLoading]);
 
   return { 
     premiumStatus, 
-    loading, 
+    loading: loading || roleLoading, 
     refetch: fetchPremiumStatus 
   };
 };
