@@ -35,7 +35,15 @@ export const useCVPurchases = () => {
 
       if (error) throw error;
       
-      setCVPurchases(data || []);
+      // Type assertion to handle the database string types
+      const typedData = (data || []).map(item => ({
+        ...item,
+        cv_type: item.cv_type as 'silver' | 'gold' | 'platinum',
+        payment_status: item.payment_status as 'pending' | 'verified' | 'failed',
+        payment_method: item.payment_method as 'transfer' | 'dana' | undefined
+      }));
+      
+      setCVPurchases(typedData);
     } catch (error) {
       console.error('Error fetching CV purchases:', error);
     } finally {
@@ -50,12 +58,22 @@ export const useCVPurchases = () => {
   }) => {
     if (!user) return null;
 
+    // Calculate price based on CV type
+    const priceMap = {
+      silver: 20000,
+      gold: 50000,
+      platinum: 100000
+    };
+
     try {
       const { data, error } = await supabase
         .from('cv_purchases')
         .insert({
           user_id: user.id,
-          ...purchaseData,
+          cv_type: purchaseData.cv_type,
+          payment_method: purchaseData.payment_method,
+          whatsapp_number: purchaseData.whatsapp_number,
+          price: priceMap[purchaseData.cv_type],
           payment_status: 'pending',
         })
         .select()
@@ -63,8 +81,16 @@ export const useCVPurchases = () => {
 
       if (error) throw error;
       
-      setCVPurchases(prev => [data, ...prev]);
-      return data;
+      // Type assertion for the returned data
+      const typedData = {
+        ...data,
+        cv_type: data.cv_type as 'silver' | 'gold' | 'platinum',
+        payment_status: data.payment_status as 'pending' | 'verified' | 'failed',
+        payment_method: data.payment_method as 'transfer' | 'dana' | undefined
+      };
+      
+      setCVPurchases(prev => [typedData, ...prev]);
+      return typedData;
     } catch (error) {
       console.error('Error creating CV purchase:', error);
       return null;
@@ -85,10 +111,18 @@ export const useCVPurchases = () => {
 
       if (error) throw error;
       
+      // Type assertion for the returned data
+      const typedData = {
+        ...data,
+        cv_type: data.cv_type as 'silver' | 'gold' | 'platinum',
+        payment_status: data.payment_status as 'pending' | 'verified' | 'failed',
+        payment_method: data.payment_method as 'transfer' | 'dana' | undefined
+      };
+      
       setCVPurchases(prev => prev.map(purchase => 
-        purchase.id === purchaseId ? data : purchase
+        purchase.id === purchaseId ? typedData : purchase
       ));
-      return data;
+      return typedData;
     } catch (error) {
       console.error('Error updating payment proof:', error);
       return null;

@@ -29,7 +29,12 @@ export const usePremiumStatus = () => {
 
       if (error) throw error;
       
-      setPremiumStatus(data || { is_premium: false });
+      // Handle the JSON response from the RPC function
+      if (data && typeof data === 'object') {
+        setPremiumStatus(data as PremiumStatus);
+      } else {
+        setPremiumStatus({ is_premium: false });
+      }
     } catch (error) {
       console.error('Error fetching premium status:', error);
       setPremiumStatus({ is_premium: false });
