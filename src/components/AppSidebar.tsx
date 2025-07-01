@@ -111,8 +111,26 @@ const AppSidebar = ({ activeTab, onTabChange }: AppSidebarProps) => {
   // Add admin menu if user is admin
   if (isAdmin && !rolesLoading) {
     accountItems.unshift({
+      id: 'admin-dashboard',
+      label: 'Dashboard Admin',
+      icon: Shield,
+      description: 'Panel admin utama'
+    });
+    accountItems.unshift({
+      id: 'user-management',
+      label: 'Kelola Pengguna',
+      icon: Shield,
+      description: 'Manajemen pengguna'
+    });
+    accountItems.unshift({
+      id: 'blog-management',
+      label: 'Kelola Artikel',
+      icon: Shield,
+      description: 'Manajemen blog'
+    });
+    accountItems.unshift({
       id: 'admin',
-      label: 'Panel Admin',
+      label: 'Verifikasi Kontrak',
       icon: Shield,
       description: 'Kelola sistem'
     });

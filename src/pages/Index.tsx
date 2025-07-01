@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { SidebarProvider } from '@/components/ui/sidebar';
 import { AuthProvider } from '@/hooks/useAuth';
@@ -9,6 +8,9 @@ import TidalInfo from '@/components/TidalInfo';
 import NavigationMap from '@/components/NavigationMap';
 import ContractManagement from '@/components/ContractManagement';
 import AdminPanel from '@/components/AdminPanel';
+import AdminDashboard from '@/components/admin/AdminDashboard';
+import UserManagement from '@/components/admin/UserManagement';
+import BlogManagement from '@/components/admin/BlogManagement';
 import UserProfile from '@/components/UserProfile';
 import BlogPage from '@/components/BlogPage';
 import CVBuilder from '@/components/CVBuilder';
@@ -83,6 +85,24 @@ const AppContent = () => {
         return (
           <AccessControl requireAdmin>
             <AdminPanel />
+          </AccessControl>
+        );
+      case 'admin-dashboard':
+        return (
+          <AccessControl requireAdmin>
+            <AdminDashboard onNavigate={setActiveTab} />
+          </AccessControl>
+        );
+      case 'user-management':
+        return (
+          <AccessControl requireAdmin>
+            <UserManagement />
+          </AccessControl>
+        );
+      case 'blog-management':
+        return (
+          <AccessControl requireAdmin>
+            <BlogManagement />
           </AccessControl>
         );
       case 'profile':
