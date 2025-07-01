@@ -15,16 +15,17 @@ const PremiumStatusIndicator: React.FC<PremiumStatusIndicatorProps> = ({ onUpgra
   if (loading) {
     return (
       <div className="animate-pulse">
-        <div className="h-8 w-20 bg-slate-200 rounded"></div>
+        <div className="h-6 w-16 sm:h-8 sm:w-20 bg-slate-200 rounded"></div>
       </div>
     );
   }
 
   if (premiumStatus.is_premium) {
     return (
-      <Badge className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white border-0 hover:from-yellow-500 hover:to-orange-600">
+      <Badge className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white border-0 hover:from-yellow-500 hover:to-orange-600 text-xs sm:text-sm">
         <Crown className="h-3 w-3 mr-1" />
-        Premium
+        <span className="hidden sm:inline">Premium</span>
+        <span className="sm:hidden">Pro</span>
       </Badge>
     );
   }
@@ -34,10 +35,11 @@ const PremiumStatusIndicator: React.FC<PremiumStatusIndicatorProps> = ({ onUpgra
       variant="outline"
       size="sm"
       onClick={onUpgradeClick}
-      className="border-orange-200 text-orange-600 hover:bg-orange-50"
+      className="border-orange-200 text-orange-600 hover:bg-orange-50 text-xs sm:text-sm px-2 sm:px-3"
     >
       <Star className="h-3 w-3 mr-1" />
-      Non Premium
+      <span className="hidden sm:inline">Non Premium</span>
+      <span className="sm:hidden">Free</span>
     </Button>
   );
 };

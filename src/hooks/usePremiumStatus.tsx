@@ -18,7 +18,10 @@ export const usePremiumStatus = () => {
   const { isAdmin, loading: roleLoading } = useUserRoles();
 
   const fetchPremiumStatus = async () => {
+    console.log('fetchPremiumStatus called:', { user: user?.email, isAdmin, roleLoading });
+    
     if (!user) {
+      console.log('No user, setting premium to false');
       setPremiumStatus({ is_premium: false });
       setLoading(false);
       return;
@@ -26,6 +29,7 @@ export const usePremiumStatus = () => {
 
     // If user is admin, automatically grant premium access
     if (isAdmin) {
+      console.log('User is admin, granting premium access');
       setPremiumStatus({ 
         is_premium: true,
         subscription_type: 'admin',
@@ -36,16 +40,25 @@ export const usePremiumStatus = () => {
     }
     
     try {
+      console.log('Fetching premium status from database for user:', user.id);
       const { data, error } = await supabase.rpc('get_user_premium_status', {
         _user_id: user.id
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching premium status:', error);
+        throw error;
+      }
+      
+      console.log('Premium status response:', data);
       
       // Handle the JSON response from the RPC function
       if (data && typeof data === 'object' && !Array.isArray(data)) {
-        setPremiumStatus(data as unknown as PremiumStatus);
+        const status = data as unknown as PremiumStatus;
+        console.log('Setting premium status:', status);
+        setPremiumStatus(status);
       } else {
+        console.log('No premium data found, setting to false');
         setPremiumStatus({ is_premium: false });
       }
     } catch (error) {
@@ -57,6 +70,7 @@ export const usePremiumStatus = () => {
   };
 
   useEffect(() => {
+    console.log('usePremiumStatus useEffect:', { user: user?.email, isAdmin, roleLoading });
     // Wait for role loading to complete before fetching premium status
     if (!roleLoading) {
       fetchPremiumStatus();

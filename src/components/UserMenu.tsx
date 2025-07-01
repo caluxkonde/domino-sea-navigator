@@ -23,6 +23,13 @@ const UserMenu: React.FC<UserMenuProps> = ({ onProfileClick }) => {
   const { isAdmin } = useUserRoles();
   const { premiumStatus } = usePremiumStatus();
 
+  // Debug logging
+  console.log('UserMenu Debug:', {
+    user: user?.email,
+    isAdmin,
+    premiumStatus
+  });
+
   const handleSignOut = async () => {
     try {
       await signOut();
@@ -35,12 +42,12 @@ const UserMenu: React.FC<UserMenuProps> = ({ onProfileClick }) => {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="relative h-auto p-0">
-          <div className="flex items-center space-x-2 bg-slate-100 dark:bg-slate-700 rounded-lg px-3 py-2 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors">
-            <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white text-sm font-semibold">
+          <div className="flex items-center space-x-2 bg-slate-100 dark:bg-slate-700 rounded-lg px-2 sm:px-3 py-2 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors">
+            <div className="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white text-xs sm:text-sm font-semibold">
               {user?.user_metadata?.full_name?.charAt(0) || user?.email?.charAt(0) || 'U'}
             </div>
             <div className="hidden sm:block text-left">
-              <p className="text-sm font-medium text-slate-800 dark:text-slate-200">
+              <p className="text-sm font-medium text-slate-800 dark:text-slate-200 truncate max-w-32">
                 {user?.user_metadata?.full_name || 'Pengguna'}
               </p>
               <div className="flex items-center space-x-1">
@@ -64,11 +71,11 @@ const UserMenu: React.FC<UserMenuProps> = ({ onProfileClick }) => {
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56" align="end">
         <div className="px-2 py-1.5">
-          <p className="text-sm font-medium text-slate-800">
+          <p className="text-sm font-medium text-slate-800 truncate">
             {user?.user_metadata?.full_name || 'Pengguna'}
           </p>
-          <p className="text-xs text-slate-500">{user?.email}</p>
-          <div className="flex items-center space-x-1 mt-1">
+          <p className="text-xs text-slate-500 truncate">{user?.email}</p>
+          <div className="flex items-center space-x-1 mt-1 flex-wrap gap-1">
             {isAdmin && (
               <Badge variant="outline" className="text-xs">
                 Admin
