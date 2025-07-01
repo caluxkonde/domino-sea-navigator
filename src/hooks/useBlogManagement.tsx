@@ -41,7 +41,10 @@ export const useBlogManagement = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setPosts(data || []);
+      setPosts((data || []).map(post => ({
+        ...post,
+        status: post.status as 'draft' | 'published'
+      })) as BlogPost[]);
     } catch (error) {
       console.error('Error fetching blog posts:', error);
       toast({
@@ -68,7 +71,12 @@ export const useBlogManagement = () => {
 
       if (error) throw error;
 
-      setPosts(prev => [data, ...prev]);
+      const typedData = {
+        ...data,
+        status: data.status as 'draft' | 'published'
+      } as BlogPost;
+
+      setPosts(prev => [typedData, ...prev]);
       toast({
         title: 'Berhasil',
         description: 'Artikel berhasil dibuat',
@@ -98,7 +106,12 @@ export const useBlogManagement = () => {
 
       if (error) throw error;
 
-      setPosts(prev => prev.map(post => post.id === postId ? data : post));
+      const typedData = {
+        ...data,
+        status: data.status as 'draft' | 'published'
+      } as BlogPost;
+
+      setPosts(prev => prev.map(post => post.id === postId ? typedData : post));
       toast({
         title: 'Berhasil',
         description: 'Artikel berhasil diperbarui',
@@ -152,7 +165,12 @@ export const useBlogManagement = () => {
 
       if (error) throw error;
 
-      setPosts(prev => prev.map(post => post.id === postId ? data : post));
+      const typedData = {
+        ...data,
+        status: data.status as 'draft' | 'published'
+      } as BlogPost;
+
+      setPosts(prev => prev.map(post => post.id === postId ? typedData : post));
       toast({
         title: 'Berhasil',
         description: 'Artikel berhasil dipublikasikan',
@@ -181,7 +199,12 @@ export const useBlogManagement = () => {
 
       if (error) throw error;
 
-      setPosts(prev => prev.map(post => post.id === postId ? data : post));
+      const typedData = {
+        ...data,
+        status: data.status as 'draft' | 'published'
+      } as BlogPost;
+
+      setPosts(prev => prev.map(post => post.id === postId ? typedData : post));
       toast({
         title: 'Berhasil',
         description: 'Artikel berhasil di-unpublish',
