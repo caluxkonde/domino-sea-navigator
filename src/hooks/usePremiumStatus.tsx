@@ -30,8 +30,8 @@ export const usePremiumStatus = () => {
       if (error) throw error;
       
       // Handle the JSON response from the RPC function
-      if (data && typeof data === 'object') {
-        setPremiumStatus(data as PremiumStatus);
+      if (data && typeof data === 'object' && !Array.isArray(data)) {
+        setPremiumStatus(data as unknown as PremiumStatus);
       } else {
         setPremiumStatus({ is_premium: false });
       }
