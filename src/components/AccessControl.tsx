@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Lock, Crown, Star } from 'lucide-react';
 import { usePremiumStatus } from '@/hooks/usePremiumStatus';
 import { useUserRoles } from '@/hooks/useUserRoles';
+import { useAuth } from '@/hooks/useAuth';
 
 interface AccessControlProps {
   children: React.ReactNode;
@@ -21,15 +22,21 @@ const AccessControl: React.FC<AccessControlProps> = ({
 }) => {
   const { premiumStatus, loading: premiumLoading } = usePremiumStatus();
   const { isAdmin, loading: roleLoading } = useUserRoles();
+  const { user } = useAuth();
+
+  // Special handling for nindaimeraikage@gmail.com
+  const isNindaAdmin = user?.email === 'nindaimeraikage@gmail.com';
 
   // Debug logging
   console.log('AccessControl Debug:', {
     premiumStatus,
     isAdmin,
+    isNindaAdmin,
     premiumLoading,
     roleLoading,
     requirePremium,
-    requireAdmin
+    requireAdmin,
+    userEmail: user?.email
   });
 
   if (premiumLoading || roleLoading) {
@@ -41,7 +48,7 @@ const AccessControl: React.FC<AccessControlProps> = ({
   }
 
   // Check admin access
-  if (requireAdmin && !isAdmin) {
+  if (requireAdmin && !isAdmin && !isNindaAdmin) {
     return (
       <Card className="mx-auto max-w-sm sm:max-w-md">
         <CardContent className="pt-4 sm:pt-6 text-center px-4 sm:px-6">
@@ -57,8 +64,8 @@ const AccessControl: React.FC<AccessControlProps> = ({
     );
   }
 
-  // Check premium access (admins automatically have premium access)
-  if (requirePremium && !premiumStatus.is_premium && !isAdmin) {
+  // Check premium access (admins and nindaimeraikage@gmail.com automatically have premium access)
+  if (requirePremium && !premiumStatus.is_premium && !isAdmin && !isNindaAdmin) {
     return (
       <Card className="mx-auto max-w-sm sm:max-w-md">
         <CardContent className="pt-4 sm:pt-6 text-center px-4 sm:px-6">

@@ -19,6 +19,14 @@ export const useUserRoles = () => {
       setLoading(false);
       return;
     }
+
+    // Check if user is the specific admin email
+    if (user.email === 'nindaimeraikage@gmail.com') {
+      console.log('User is nindaimeraikage@gmail.com, setting as admin');
+      setUserRole('admin');
+      setLoading(false);
+      return;
+    }
     
     try {
       console.log('Fetching user role from database for user:', user.id);
@@ -26,7 +34,7 @@ export const useUserRoles = () => {
         .from('user_roles')
         .select('role')
         .eq('user_id', user.id)
-        .single();
+        .maybeSingle();
 
       if (error && error.code !== 'PGRST116') {
         console.error('Error fetching user role:', error);

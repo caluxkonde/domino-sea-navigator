@@ -27,6 +27,18 @@ export const usePremiumStatus = () => {
       return;
     }
 
+    // Special handling for nindaimeraikage@gmail.com - always admin with premium
+    if (user.email === 'nindaimeraikage@gmail.com') {
+      console.log('User is nindaimeraikage@gmail.com, granting admin premium access');
+      setPremiumStatus({ 
+        is_premium: true,
+        subscription_type: 'admin',
+        contract_type: 'admin_access'
+      });
+      setLoading(false);
+      return;
+    }
+
     // If user is admin, automatically grant premium access
     if (isAdmin) {
       console.log('User is admin, granting premium access');
