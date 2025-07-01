@@ -1,4 +1,3 @@
-
 export interface BlogPost {
   id: string;
   title: string;
@@ -11,6 +10,7 @@ export interface BlogPost {
   created_at: string;
   updated_at: string;
   published_at: string | null;
+  featured_image_url: string | null;
 }
 
 export interface CreatePostData {
