@@ -16,18 +16,22 @@ import CertificationPage from '@/components/CertificationPage';
 import PremiumUpgrade from '@/components/PremiumUpgrade';
 import PremiumStatusIndicator from '@/components/PremiumStatusIndicator';
 import AccessControl from '@/components/AccessControl';
+import NotificationDropdown from '@/components/NotificationDropdown';
+import UserMenu from '@/components/UserMenu';
+import RoleManagementDialog from '@/components/RoleManagementDialog';
 import { useAuth } from '@/hooks/useAuth';
+import { useUserRoles } from '@/hooks/useUserRoles';
 import { Toaster } from '@/components/ui/toaster';
 import { Button } from '@/components/ui/button';
-import { Bell, Search, Settings, Sun, Moon } from 'lucide-react';
+import { Search, Settings, Sun, Moon } from 'lucide-react';
 import { useState as useTheme } from 'react';
 
 const AppContent = () => {
   const [activeTab, setActiveTab] = useState('overview');
   const [darkMode, setDarkMode] = useState(false);
-  const [notifications, setNotifications] = useState(3);
   const [showPremiumUpgrade, setShowPremiumUpgrade] = useState(false);
   const { user, loading } = useAuth();
+  const { isAdmin } = useUserRoles();
 
   if (loading) {
     return (
@@ -128,6 +132,8 @@ const AppContent = () => {
                 <div className="flex items-center space-x-3">
                   <PremiumStatusIndicator onUpgradeClick={() => setShowPremiumUpgrade(true)} />
                   
+                  {isAdmin && <RoleManagementDialog />}
+                  
                   <Button
                     variant="ghost"
                     size="sm"
@@ -137,30 +143,13 @@ const AppContent = () => {
                     {darkMode ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
                   </Button>
                   
-                  <Button variant="ghost" size="sm" className="relative">
-                    <Bell className="h-4 w-4" />
-                    {notifications > 0 && (
-                      <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                        {notifications}
-                      </span>
-                    )}
-                  </Button>
+                  <NotificationDropdown />
                   
                   <Button variant="ghost" size="sm">
                     <Settings className="h-4 w-4" />
                   </Button>
                   
-                  <div className="flex items-center space-x-2 bg-slate-100 dark:bg-slate-700 rounded-lg px-3 py-2">
-                    <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white text-sm font-semibold">
-                      {user?.user_metadata?.full_name?.charAt(0) || user?.email?.charAt(0) || 'U'}
-                    </div>
-                    <div className="hidden sm:block">
-                      <p className="text-sm font-medium text-slate-800 dark:text-slate-200">
-                        {user?.user_metadata?.full_name || 'Pengguna'}
-                      </p>
-                      <p className="text-xs text-slate-500 dark:text-slate-400">Online</p>
-                    </div>
-                  </div>
+                  <UserMenu onProfileClick={() => setActiveTab('profile')} />
                 </div>
               </div>
             </header>
