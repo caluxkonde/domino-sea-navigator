@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -12,19 +11,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
-
-interface BlogPost {
-  id: string;
-  title: string;
-  content: string;
-  excerpt: string;
-  featured_image_url: string;
-  category: 'job' | 'news' | 'info' | 'general';
-  status: 'draft' | 'published' | 'archived';
-  tags: string[];
-  created_at: string;
-  updated_at: string;
-}
+import { BlogPost } from '@/types/blog';
 
 interface JobPosting {
   id: string;

@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -25,6 +24,7 @@ import {
   Search
 } from 'lucide-react';
 import { useBlogManagement } from '@/hooks/useBlogManagement';
+import { BlogPost } from '@/types/blog';
 import { format } from 'date-fns';
 import { id } from 'date-fns/locale';
 
@@ -32,7 +32,7 @@ const BlogManagement = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
-  const [editingPost, setEditingPost] = useState<any>(null);
+  const [editingPost, setEditingPost] = useState<BlogPost | null>(null);
   
   const { 
     posts, 
@@ -85,7 +85,7 @@ const BlogManagement = () => {
     setIsCreateDialogOpen(false);
   };
 
-  const handleEdit = (post: any) => {
+  const handleEdit = (post: BlogPost) => {
     setEditingPost(post);
     setFormData({
       title: post.title,
@@ -104,7 +104,7 @@ const BlogManagement = () => {
     }
   };
 
-  const handleStatusToggle = async (post: any) => {
+  const handleStatusToggle = async (post: BlogPost) => {
     if (post.status === 'published') {
       await unpublishPost(post.id);
     } else {
