@@ -21,6 +21,7 @@ import AccessControl from '@/components/AccessControl';
 import NotificationDropdown from '@/components/NotificationDropdown';
 import UserMenu from '@/components/UserMenu';
 import RoleManagementDialog from '@/components/RoleManagementDialog';
+import PremiumManagement from '@/components/admin/PremiumManagement';
 import { useAuth } from '@/hooks/useAuth';
 import { useUserRoles } from '@/hooks/useUserRoles';
 import { Toaster } from '@/components/ui/toaster';
@@ -43,7 +44,7 @@ const AppContent = () => {
             <div className="animate-spin rounded-full h-16 w-16 border-4 border-blue-200 border-t-blue-600 mx-auto mb-6"></div>
             <div className="animate-pulse absolute inset-0 rounded-full h-16 w-16 border-4 border-transparent border-t-blue-400 mx-auto"></div>
           </div>
-          <h2 className="text-xl font-semibold text-slate-800 mb-2">Memuat NaviMarine</h2>
+          <h2 className="text-xl font-semibold text-slate-800 mb-2">Memuat Info Pelaut</h2>
           <p className="text-slate-600">Menyiapkan sistem navigasi maritim...</p>
           <div className="mt-4 flex justify-center space-x-1">
             <div className="animate-bounce w-2 h-2 bg-blue-500 rounded-full"></div>
@@ -105,6 +106,12 @@ const AppContent = () => {
             <BlogManagement />
           </AccessControl>
         );
+      case 'premium-management':
+        return (
+          <AccessControl requireAdmin>
+            <PremiumManagement />
+          </AccessControl>
+        );
       case 'profile':
         return <UserProfile />;
       case 'blog':
@@ -143,7 +150,7 @@ const AppContent = () => {
                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
                     <input
                       type="text"
-                      placeholder="Cari di NaviMarine..."
+                      placeholder="Cari di Info Pelaut..."
                       className="pl-10 pr-4 py-2 w-64 bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
                     />
                   </div>

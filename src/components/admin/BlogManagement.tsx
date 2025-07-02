@@ -71,8 +71,23 @@ const BlogManagement = () => {
     e.preventDefault();
     
     const postData = {
-      ...formData,
-      tags: formData.tags.split(',').map(tag => tag.trim()).filter(Boolean)
+      title: formData.title,
+      content: formData.content,
+      excerpt: formData.excerpt,
+      category: formData.category,
+      tags: formData.tags.split(',').map(tag => tag.trim()).filter(Boolean),
+      status: formData.status,
+      post_type: formData.post_type,
+      ...(formData.post_type === 'job' && {
+        company: formData.company,
+        location: formData.location,
+        salary_range: formData.salary_range,
+        application_deadline: formData.application_deadline || null,
+        requirements: formData.requirements,
+        job_type: formData.job_type,
+        experience_level: formData.experience_level,
+        contact_info: `WhatsApp: ${formData.company} - Kirim CV ke email/kontak yang tercantum`
+      })
     };
 
     if (editingPost) {
@@ -266,32 +281,48 @@ const BlogManagement = () => {
                       </div>
                     </>
                   )}
-                  
-                  <div>
-                    <Label htmlFor="category">Kategori</Label>
-                    <Select value={formData.category} onValueChange={(value) => setFormData({...formData, category: value})}>
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="general">Umum</SelectItem>
-                        <SelectItem value="maritime">Maritim</SelectItem>
-                        <SelectItem value="safety">Keselamatan</SelectItem>
-                        <SelectItem value="technology">Teknologi</SelectItem>
-                        <SelectItem value="career">Karir</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
+                  {formData.post_type === 'article' && (
+                    <>
+                      <div>
+                        <Label htmlFor="category">Kategori</Label>
+                        <Select value={formData.category} onValueChange={(value) => setFormData({...formData, category: value})}>
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="general">Umum</SelectItem>
+                            <SelectItem value="maritime">Maritim</SelectItem>
+                            <SelectItem value="safety">Keselamatan</SelectItem>
+                            <SelectItem value="technology">Teknologi</SelectItem>
+                            <SelectItem value="career">Karir</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
 
-                  <div>
-                    <Label htmlFor="tags">Tags (pisahkan dengan koma)</Label>
-                    <Input
-                      id="tags"
-                      value={formData.tags}
-                      onChange={(e) => setFormData({...formData, tags: e.target.value})}
-                      placeholder="tag1, tag2, tag3"
-                    />
-                  </div>
+                      <div>
+                        <Label htmlFor="tags">Tags (pisahkan dengan koma)</Label>
+                        <Input
+                          id="tags"
+                          value={formData.tags}
+                          onChange={(e) => setFormData({...formData, tags: e.target.value})}
+                          placeholder="tag1, tag2, tag3"
+                        />
+                      </div>
+                    </>
+                  )}
+
+                  {formData.post_type === 'job' && (
+                    <div className="md:col-span-2">
+                      <Label htmlFor="requirements">Persyaratan Pekerjaan</Label>
+                      <Textarea
+                        id="requirements"
+                        value={formData.requirements}
+                        onChange={(e) => setFormData({...formData, requirements: e.target.value})}
+                        placeholder="Tulis persyaratan lengkap untuk posisi ini..."
+                        rows={4}
+                      />
+                    </div>
+                  )}
 
                   <div className="md:col-span-2">
                     <Label htmlFor="excerpt">Ringkasan</Label>
@@ -299,18 +330,18 @@ const BlogManagement = () => {
                       id="excerpt"
                       value={formData.excerpt}
                       onChange={(e) => setFormData({...formData, excerpt: e.target.value})}
-                      placeholder="Tulis ringkasan artikel..."
+                      placeholder={formData.post_type === 'job' ? 'Tulis ringkasan lowongan...' : 'Tulis ringkasan artikel...'}
                       rows={3}
                     />
                   </div>
 
                   <div className="md:col-span-2">
-                    <Label htmlFor="content">Konten Artikel</Label>
+                    <Label htmlFor="content">{formData.post_type === 'job' ? 'Deskripsi Pekerjaan' : 'Konten Artikel'}</Label>
                     <Textarea
                       id="content"
                       value={formData.content}
                       onChange={(e) => setFormData({...formData, content: e.target.value})}
-                      placeholder="Tulis konten artikel lengkap..."
+                      placeholder={formData.post_type === 'job' ? 'Tulis deskripsi pekerjaan lengkap...' : 'Tulis konten artikel lengkap...'}
                       rows={10}
                       required
                     />

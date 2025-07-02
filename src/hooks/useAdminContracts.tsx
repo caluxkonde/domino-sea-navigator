@@ -195,6 +195,62 @@ export const useAdminContracts = () => {
     }
   };
 
+  const cancelContract = async (contractId: string, cancellationReason?: string) => {
+    if (!user) return false;
+
+    try {
+      console.log('Cancelling contract:', contractId, 'with reason:', cancellationReason);
+      
+      const { data, error } = await supabase.rpc('cancel_contract', {
+        contract_id_param: contractId,
+        admin_id_param: user.id,
+        cancellation_reason_param: cancellationReason
+      });
+
+      if (error) {
+        console.error('RPC error:', error);
+        throw error;
+      }
+
+      console.log('Cancel contract response:', data);
+
+      // Handle the response
+      let response: ContractResponse;
+      
+      if (typeof data === 'string') {
+        try {
+          response = JSON.parse(data);
+        } catch (e) {
+          console.error('Failed to parse response:', data);
+          throw new Error('Invalid response format');
+        }
+      } else if (typeof data === 'object' && data !== null) {
+        response = data as unknown as ContractResponse;
+      } else {
+        throw new Error('Unexpected response format');
+      }
+
+      if (response.success) {
+        toast({
+          title: "Berhasil",
+          description: "Kontrak telah dibatalkan",
+        });
+        await fetchPendingContracts();
+        return true;
+      } else {
+        throw new Error(response.error || 'Unknown error occurred');
+      }
+    } catch (error: any) {
+      console.error('Error cancelling contract:', error);
+      toast({
+        title: "Error",
+        description: error.message || "Gagal membatalkan kontrak",
+        variant: "destructive",
+      });
+      return false;
+    }
+  };
+
   useEffect(() => {
     fetchPendingContracts();
   }, [user]);
@@ -204,6 +260,7 @@ export const useAdminContracts = () => {
     loading,
     acceptContract,
     rejectContract,
+    cancelContract,
     refetch: fetchPendingContracts
   };
 };

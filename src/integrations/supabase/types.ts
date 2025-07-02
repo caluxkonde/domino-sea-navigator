@@ -11,42 +11,69 @@ export type Database = {
     Tables: {
       blog_posts: {
         Row: {
+          application_deadline: string | null
           author_id: string | null
           category: string | null
+          company: string | null
+          contact_info: string | null
           content: string
           created_at: string | null
           excerpt: string | null
+          experience_level: string | null
           featured_image_url: string | null
           id: string
+          job_type: string | null
+          location: string | null
+          post_type: string | null
           published_at: string | null
+          requirements: string | null
+          salary_range: string | null
           status: string | null
           tags: string[] | null
           title: string
           updated_at: string | null
         }
         Insert: {
+          application_deadline?: string | null
           author_id?: string | null
           category?: string | null
+          company?: string | null
+          contact_info?: string | null
           content: string
           created_at?: string | null
           excerpt?: string | null
+          experience_level?: string | null
           featured_image_url?: string | null
           id?: string
+          job_type?: string | null
+          location?: string | null
+          post_type?: string | null
           published_at?: string | null
+          requirements?: string | null
+          salary_range?: string | null
           status?: string | null
           tags?: string[] | null
           title: string
           updated_at?: string | null
         }
         Update: {
+          application_deadline?: string | null
           author_id?: string | null
           category?: string | null
+          company?: string | null
+          contact_info?: string | null
           content?: string
           created_at?: string | null
           excerpt?: string | null
+          experience_level?: string | null
           featured_image_url?: string | null
           id?: string
+          job_type?: string | null
+          location?: string | null
+          post_type?: string | null
           published_at?: string | null
+          requirements?: string | null
+          salary_range?: string | null
           status?: string | null
           tags?: string[] | null
           title?: string
@@ -128,6 +155,7 @@ export type Database = {
       contracts: {
         Row: {
           admin_notes: string | null
+          cancellation_reason: string | null
           contract_type: string
           created_at: string | null
           duration_months: number
@@ -149,6 +177,7 @@ export type Database = {
         }
         Insert: {
           admin_notes?: string | null
+          cancellation_reason?: string | null
           contract_type: string
           created_at?: string | null
           duration_months: number
@@ -170,6 +199,7 @@ export type Database = {
         }
         Update: {
           admin_notes?: string | null
+          cancellation_reason?: string | null
           contract_type?: string
           created_at?: string | null
           duration_months?: number
@@ -923,6 +953,14 @@ export type Database = {
       calculate_distance: {
         Args: { lat1: number; lon1: number; lat2: number; lon2: number }
         Returns: number
+      }
+      cancel_contract: {
+        Args: {
+          contract_id_param: string
+          admin_id_param: string
+          cancellation_reason_param?: string
+        }
+        Returns: Json
       }
       get_contracts_expiring_soon: {
         Args: Record<PropertyKey, never>

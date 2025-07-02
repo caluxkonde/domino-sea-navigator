@@ -111,6 +111,12 @@ const AppSidebar = ({ activeTab, onTabChange }: AppSidebarProps) => {
   // Add admin menu if user is admin
   if (isAdmin && !rolesLoading) {
     accountItems.unshift({
+      id: 'premium-management',
+      label: 'Kelola Premium',
+      icon: Shield,
+      description: 'Manajemen premium & masa aktif'
+    });
+    accountItems.unshift({
       id: 'admin-dashboard',
       label: 'Dashboard Admin',
       icon: Shield,

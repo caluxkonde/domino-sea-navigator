@@ -10,7 +10,7 @@ import { format } from 'date-fns';
 import { id } from 'date-fns/locale';
 
 const AdminPanel = () => {
-  const { contracts, loading, acceptContract, rejectContract } = useAdminContracts();
+  const { contracts, loading, acceptContract, rejectContract, cancelContract } = useAdminContracts();
   const [selectedContract, setSelectedContract] = useState<string | null>(null);
   const [adminNotes, setAdminNotes] = useState('');
   const [actionLoading, setActionLoading] = useState(false);
@@ -35,10 +35,29 @@ const AdminPanel = () => {
     setActionLoading(false);
   };
 
+  const handleCancel = async (contractId: string) => {
+    if (window.confirm('Apakah Anda yakin ingin membatalkan kontrak ini?')) {
+      setActionLoading(true);
+      const success = await cancelContract(contractId, adminNotes || 'Dibatalkan oleh admin');
+      if (success) {
+        setSelectedContract(null);
+        setAdminNotes('');
+      }
+      setActionLoading(false);
+    }
+  };
+
   const handleWhatsAppContact = (whatsappNumber?: string) => {
     if (!whatsappNumber) return;
-    const message = encodeURIComponent('Halo, ini adalah admin Nahkodaku. Saya ingin menghubungi Anda terkait kontrak berlangganan Anda.');
-    window.open(`https://wa.me/${whatsappNumber}?text=${message}`, '_blank');
+    // Clean the number and ensure it starts with 62 for Indonesia
+    let cleanNumber = whatsappNumber.replace(/[^\d]/g, '');
+    if (cleanNumber.startsWith('0')) {
+      cleanNumber = '62' + cleanNumber.substring(1);
+    } else if (!cleanNumber.startsWith('62')) {
+      cleanNumber = '62' + cleanNumber;
+    }
+    const message = encodeURIComponent('Halo, ini adalah admin Info Pelaut. Saya ingin menghubungi Anda terkait kontrak berlangganan Anda.');
+    window.open(`https://wa.me/${cleanNumber}?text=${message}`, '_blank');
   };
 
   const formatPrice = (price: number) => {
@@ -227,12 +246,21 @@ const AdminPanel = () => {
                         {actionLoading ? 'Memproses...' : 'Tolak'}
                       </Button>
                       <Button
+                        onClick={() => handleCancel(contract.id)}
+                        disabled={actionLoading}
+                        variant="outline"
+                        className="flex-1 text-orange-600 border-orange-300 hover:bg-orange-50"
+                      >
+                        Batalkan
+                      </Button>
+                      <Button
                         onClick={() => {
                           setSelectedContract(null);
                           setAdminNotes('');
                         }}
                         variant="outline"
                         disabled={actionLoading}
+                        className="px-3"
                       >
                         Batal
                       </Button>

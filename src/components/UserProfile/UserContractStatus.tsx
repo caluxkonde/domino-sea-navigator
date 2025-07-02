@@ -1,10 +1,11 @@
 
 import React from 'react';
-import { CreditCard, CheckCircle, Calendar, Clock, Phone } from 'lucide-react';
+import { CreditCard, CheckCircle, Calendar, Clock, Phone, Crown } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { format, differenceInDays } from 'date-fns';
 import { id } from 'date-fns/locale';
+import { usePremiumStatus } from '@/hooks/usePremiumStatus';
 
 interface Contract {
   id: string;
@@ -24,6 +25,12 @@ interface UserContractStatusProps {
 }
 
 const UserContractStatus: React.FC<UserContractStatusProps> = ({ contracts, activeContract }) => {
+  const { premiumStatus } = usePremiumStatus();
+
+  const getDaysRemaining = (endDate: string) => {
+    const days = differenceInDays(new Date(endDate), new Date());
+    return Math.max(0, days);
+  };
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('id-ID', {
       style: 'currency',
@@ -41,10 +48,6 @@ const UserContractStatus: React.FC<UserContractStatusProps> = ({ contracts, acti
     }
   };
 
-  const getDaysRemaining = (endDate: string) => {
-    const days = differenceInDays(new Date(endDate), new Date());
-    return Math.max(0, days);
-  };
 
   return (
     <>
