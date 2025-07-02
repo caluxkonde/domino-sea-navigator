@@ -50,7 +50,15 @@ const BlogManagement = () => {
     excerpt: '',
     category: 'general',
     tags: '',
-    status: 'draft' as 'draft' | 'published'
+    status: 'draft' as 'draft' | 'published',
+    post_type: 'article' as 'article' | 'job',
+    company: '',
+    location: '',
+    salary_range: '',
+    application_deadline: '',
+    requirements: '',
+    job_type: 'full-time',
+    experience_level: 'entry'
   });
 
   const filteredPosts = posts.filter(post => {
@@ -80,7 +88,15 @@ const BlogManagement = () => {
       excerpt: '',
       category: 'general',
       tags: '',
-      status: 'draft'
+      status: 'draft',
+      post_type: 'article',
+      company: '',
+      location: '',
+      salary_range: '',
+      application_deadline: '',
+      requirements: '',
+      job_type: 'full-time',
+      experience_level: 'entry'
     });
     setIsCreateDialogOpen(false);
   };
@@ -93,7 +109,15 @@ const BlogManagement = () => {
       excerpt: post.excerpt || '',
       category: post.category,
       tags: post.tags?.join(', ') || '',
-      status: post.status
+      status: post.status,
+      post_type: 'article',
+      company: '',
+      location: '',
+      salary_range: '',
+      application_deadline: '',
+      requirements: '',
+      job_type: 'full-time',
+      experience_level: 'entry'
     });
     setIsCreateDialogOpen(true);
   };
@@ -145,15 +169,103 @@ const BlogManagement = () => {
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="md:col-span-2">
-                    <Label htmlFor="title">Judul Artikel</Label>
+                    <Label htmlFor="post_type">Tipe Konten</Label>
+                    <Select value={formData.post_type} onValueChange={(value: 'article' | 'job') => setFormData({...formData, post_type: value})}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="article">Artikel</SelectItem>
+                        <SelectItem value="job">Lowongan Kerja</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="md:col-span-2">
+                    <Label htmlFor="title">{formData.post_type === 'job' ? 'Judul Lowongan' : 'Judul Artikel'}</Label>
                     <Input
                       id="title"
                       value={formData.title}
                       onChange={(e) => setFormData({...formData, title: e.target.value})}
-                      placeholder="Masukkan judul artikel..."
+                      placeholder={formData.post_type === 'job' ? 'Masukkan judul lowongan...' : 'Masukkan judul artikel...'}
                       required
                     />
                   </div>
+
+                  {formData.post_type === 'job' && (
+                    <>
+                      <div>
+                        <Label htmlFor="company">Nama Perusahaan</Label>
+                        <Input
+                          id="company"
+                          value={formData.company}
+                          onChange={(e) => setFormData({...formData, company: e.target.value})}
+                          placeholder="Nama perusahaan..."
+                          required
+                        />
+                      </div>
+
+                      <div>
+                        <Label htmlFor="location">Lokasi</Label>
+                        <Input
+                          id="location"
+                          value={formData.location}
+                          onChange={(e) => setFormData({...formData, location: e.target.value})}
+                          placeholder="Lokasi kerja..."
+                        />
+                      </div>
+
+                      <div>
+                        <Label htmlFor="salary_range">Rentang Gaji</Label>
+                        <Input
+                          id="salary_range"
+                          value={formData.salary_range}
+                          onChange={(e) => setFormData({...formData, salary_range: e.target.value})}
+                          placeholder="Contoh: 5-10 juta"
+                        />
+                      </div>
+
+                      <div>
+                        <Label htmlFor="application_deadline">Batas Lamaran</Label>
+                        <Input
+                          id="application_deadline"
+                          type="date"
+                          value={formData.application_deadline}
+                          onChange={(e) => setFormData({...formData, application_deadline: e.target.value})}
+                        />
+                      </div>
+
+                      <div>
+                        <Label htmlFor="job_type">Tipe Pekerjaan</Label>
+                        <Select value={formData.job_type} onValueChange={(value) => setFormData({...formData, job_type: value})}>
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="full-time">Full Time</SelectItem>
+                            <SelectItem value="part-time">Part Time</SelectItem>
+                            <SelectItem value="contract">Kontrak</SelectItem>
+                            <SelectItem value="freelance">Freelance</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <div>
+                        <Label htmlFor="experience_level">Level Pengalaman</Label>
+                        <Select value={formData.experience_level} onValueChange={(value) => setFormData({...formData, experience_level: value})}>
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="entry">Entry Level</SelectItem>
+                            <SelectItem value="mid">Mid Level</SelectItem>
+                            <SelectItem value="senior">Senior Level</SelectItem>
+                            <SelectItem value="lead">Lead/Manager</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </>
+                  )}
                   
                   <div>
                     <Label htmlFor="category">Kategori</Label>
@@ -231,7 +343,15 @@ const BlogManagement = () => {
                         excerpt: '',
                         category: 'general',
                         tags: '',
-                        status: 'draft'
+                        status: 'draft',
+                        post_type: 'article',
+                        company: '',
+                        location: '',
+                        salary_range: '',
+                        application_deadline: '',
+                        requirements: '',
+                        job_type: 'full-time',
+                        experience_level: 'entry'
                       });
                     }}
                   >

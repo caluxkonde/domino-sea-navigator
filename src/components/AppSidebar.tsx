@@ -85,9 +85,9 @@ const AppSidebar = ({ activeTab, onTabChange }: AppSidebarProps) => {
   const freeItems = [
     {
       id: 'blog',
-      label: 'Info',
+      label: 'Info & Lowongan',
       icon: Info,
-      description: 'Informasi maritim',
+      description: 'Informasi & lowongan kerja',
       requirePremium: false
     },
     {
@@ -158,7 +158,7 @@ const AppSidebar = ({ activeTab, onTabChange }: AppSidebarProps) => {
             <Waves className="h-8 w-8 text-blue-600" />
           </div>
           <div>
-            <h1 className="text-xl font-bold text-slate-800">NaviMarine</h1>
+            <h1 className="text-xl font-bold text-slate-800">Info Pelaut</h1>
             <p className="text-xs text-slate-500">Sistem Navigasi</p>
           </div>
         </div>
@@ -326,8 +326,8 @@ const AppSidebar = ({ activeTab, onTabChange }: AppSidebarProps) => {
         </Button>
         
         <div className="mt-2 text-xs text-slate-400 text-center">
-          <p>NaviMarine v2.0</p>
-          <p>© 2024 Maritime System</p>
+          <p>Info Pelaut v2.0</p>
+          <p>© 2025 Maritime System</p>
         </div>
       </SidebarFooter>
     </Sidebar>

@@ -44,7 +44,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate }) => {
               <Plus className="h-4 w-4 mr-2" />
               Tulis Artikel
             </Button>
-            <Button onClick={() => onNavigate('job-management')} variant="outline">
+            <Button onClick={() => onNavigate('blog-management')} variant="outline">
               <Briefcase className="h-4 w-4 mr-2" />
               Tambah Lowongan
             </Button>
@@ -140,7 +140,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate }) => {
                 Kelola Pengguna
               </Button>
               <Button 
-                onClick={() => onNavigate('role-management')} 
+                onClick={() => onNavigate('user-management')} 
                 className="flex-1"
               >
                 Atur Peran
@@ -170,7 +170,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate }) => {
                 Kelola Artikel
               </Button>
               <Button 
-                onClick={() => onNavigate('job-management')} 
+                onClick={() => onNavigate('blog-management')} 
                 className="flex-1"
               >
                 Kelola Lowongan
