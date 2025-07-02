@@ -24,9 +24,10 @@ import RoleManagementDialog from '@/components/RoleManagementDialog';
 import PremiumManagement from '@/components/admin/PremiumManagement';
 import { useAuth } from '@/hooks/useAuth';
 import { useUserRoles } from '@/hooks/useUserRoles';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { Toaster } from '@/components/ui/toaster';
 import { Button } from '@/components/ui/button';
-import { Search, Settings, Sun, Moon } from 'lucide-react';
+import { Search, Settings, Sun, Moon, Activity, Waves, Users } from 'lucide-react';
 import { useState as useTheme } from 'react';
 
 const AppContent = () => {
@@ -35,6 +36,7 @@ const AppContent = () => {
   const [showPremiumUpgrade, setShowPremiumUpgrade] = useState(false);
   const { user, loading } = useAuth();
   const { isAdmin } = useUserRoles();
+  const isMobile = useIsMobile();
 
   if (loading) {
     return (
@@ -139,54 +141,100 @@ const AppContent = () => {
       <div className={`flex min-h-screen transition-all duration-300 ${darkMode ? 'dark' : ''}`}>
         <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-white to-cyan-50 dark:from-slate-900 dark:via-slate-800 dark:to-blue-900"></div>
         <div className="relative z-10 flex w-full">
-          <AppSidebar activeTab={activeTab} onTabChange={setActiveTab} />
+          {!isMobile && <AppSidebar activeTab={activeTab} onTabChange={setActiveTab} />}
           
           <div className="flex-1 flex flex-col">
-            {/* Enhanced Header */}
-            <header className="bg-white/90 dark:bg-slate-800/90 backdrop-blur-md border-b border-slate-200 dark:border-slate-700 shadow-sm sticky top-0 z-50">
-              <div className="flex items-center justify-between px-6 py-4">
-                <div className="flex items-center space-x-4">
-                  <div className="relative">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
-                    <input
-                      type="text"
-                      placeholder="Cari di Info Pelaut..."
-                      className="pl-10 pr-4 py-2 w-64 bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-                    />
+            {/* Enhanced Header - Mobile optimized */}
+            {!isMobile && (
+              <header className="bg-white/90 dark:bg-slate-800/90 backdrop-blur-md border-b border-slate-200 dark:border-slate-700 shadow-sm sticky top-0 z-50">
+                <div className="flex items-center justify-between px-6 py-4">
+                  <div className="flex items-center space-x-4">
+                    <div className="relative">
+                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
+                      <input
+                        type="text"
+                        placeholder="Cari di Info Pelaut..."
+                        className="pl-10 pr-4 py-2 w-64 bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                      />
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center space-x-3">
+                    <PremiumStatusIndicator onUpgradeClick={() => setShowPremiumUpgrade(true)} />
+                    
+                    {isAdmin && <RoleManagementDialog />}
+                    
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={toggleDarkMode}
+                      className="relative"
+                    >
+                      {darkMode ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+                    </Button>
+                    
+                    <NotificationDropdown />
+                    
+                    <Button variant="ghost" size="sm">
+                      <Settings className="h-4 w-4" />
+                    </Button>
+                    
+                    <UserMenu onProfileClick={() => setActiveTab('profile')} />
                   </div>
                 </div>
-                
-                <div className="flex items-center space-x-3">
-                  <PremiumStatusIndicator onUpgradeClick={() => setShowPremiumUpgrade(true)} />
-                  
-                  {isAdmin && <RoleManagementDialog />}
-                  
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={toggleDarkMode}
-                    className="relative"
-                  >
-                    {darkMode ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-                  </Button>
-                  
-                  <NotificationDropdown />
-                  
-                  <Button variant="ghost" size="sm">
-                    <Settings className="h-4 w-4" />
-                  </Button>
-                  
-                  <UserMenu onProfileClick={() => setActiveTab('profile')} />
-                </div>
-              </div>
-            </header>
+              </header>
+            )}
 
             {/* Main Content */}
-            <main className="flex-1 p-6 overflow-auto">
-              <div className="max-w-7xl mx-auto">
+            <main className={`flex-1 ${isMobile ? 'p-0' : 'p-6'} overflow-auto`}>
+              <div className={isMobile ? 'w-full' : 'max-w-7xl mx-auto'}>
                 {renderContent()}
               </div>
             </main>
+
+            {/* Mobile Bottom Navigation */}
+            {isMobile && (
+              <div className="fixed bottom-0 left-0 right-0 bg-card/95 backdrop-blur-md border-t border-border shadow-lg z-50">
+                <div className="flex items-center justify-around py-2 px-4">
+                  <Button
+                    variant={activeTab === 'overview' ? 'default' : 'ghost'}
+                    size="sm"
+                    onClick={() => setActiveTab('overview')}
+                    className="flex flex-col items-center py-2 px-3 h-auto"
+                  >
+                    <Activity className="h-5 w-5 mb-1" />
+                    <span className="text-xs">Dashboard</span>
+                  </Button>
+                  <Button
+                    variant={activeTab === 'blog' ? 'default' : 'ghost'}
+                    size="sm"
+                    onClick={() => setActiveTab('blog')}
+                    className="flex flex-col items-center py-2 px-3 h-auto"
+                  >
+                    <Activity className="h-5 w-5 mb-1" />
+                    <span className="text-xs">Info</span>
+                  </Button>
+                  <Button
+                    variant={activeTab === 'tides' ? 'default' : 'ghost'}
+                    size="sm"
+                    onClick={() => setActiveTab('tides')}
+                    className="flex flex-col items-center py-2 px-3 h-auto"
+                  >
+                    <Waves className="h-5 w-5 mb-1" />
+                    <span className="text-xs">Pasang Surut</span>
+                  </Button>
+                  <Button
+                    variant={activeTab === 'profile' ? 'default' : 'ghost'}
+                    size="sm"
+                    onClick={() => setActiveTab('profile')}
+                    className="flex flex-col items-center py-2 px-3 h-auto"
+                  >
+                    <Users className="h-5 w-5 mb-1" />
+                    <span className="text-xs">Profil</span>
+                  </Button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
