@@ -111,8 +111,8 @@ const UserManagement = () => {
                   <TableHead>Nama</TableHead>
                   <TableHead>Email</TableHead>
                   <TableHead>Peran</TableHead>
+                  <TableHead>Status Premium</TableHead>
                   <TableHead>Tanggal Daftar</TableHead>
-                  <TableHead>Status</TableHead>
                   <TableHead>Aksi</TableHead>
                 </TableRow>
               </TableHeader>
@@ -157,9 +157,21 @@ const UserManagement = () => {
                       </div>
                     </TableCell>
                     <TableCell>
-                      <Badge variant="outline" className="text-green-600 border-green-300">
-                        Aktif
-                      </Badge>
+                      <div className="flex flex-col space-y-1">
+                        <Badge 
+                          variant={user.premium_status?.is_premium ? 'default' : 'secondary'}
+                          className={user.premium_status?.is_premium 
+                            ? 'bg-green-100 text-green-800' 
+                            : 'bg-gray-100 text-gray-800'}
+                        >
+                          {user.premium_status?.is_premium ? 'Premium' : 'Free'}
+                        </Badge>
+                        {user.premium_status?.is_premium && user.premium_status.end_date && (
+                          <span className="text-xs text-slate-500">
+                            Hingga {new Date(user.premium_status.end_date).toLocaleDateString('id-ID')}
+                          </span>
+                        )}
+                      </div>
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center space-x-2">

@@ -10,6 +10,11 @@ interface UserWithRole {
   position: string | null;
   created_at: string;
   role: 'admin' | 'user';
+  premium_status?: {
+    is_premium: boolean;
+    end_date?: string;
+    subscription_type?: string;
+  };
 }
 
 export const useUserManagement = () => {
@@ -26,7 +31,7 @@ export const useUserManagement = () => {
 
       if (profilesError) throw profilesError;
 
-      // Fetch roles for each user
+      // Fetch roles and premium status for each user
       const usersWithRoles = await Promise.all(
         (profiles || []).map(async (profile) => {
           const { data: roleData } = await supabase
@@ -35,9 +40,19 @@ export const useUserManagement = () => {
             .eq('user_id', profile.id)
             .single();
 
+          // Get premium status
+          const { data: premiumData } = await supabase.rpc('get_user_premium_status', {
+            _user_id: profile.id
+          });
+
+          const parsedPremiumData = premiumData && typeof premiumData === 'object' && 'is_premium' in premiumData 
+            ? premiumData as { is_premium: boolean; end_date?: string; subscription_type?: string; }
+            : { is_premium: false };
+
           return {
             ...profile,
-            role: roleData?.role || 'user'
+            role: roleData?.role || 'user',
+            premium_status: parsedPremiumData
           } as UserWithRole;
         })
       );
