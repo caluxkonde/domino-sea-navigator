@@ -31,7 +31,7 @@ const UserManagement = () => {
   });
 
   const handleRoleChange = async (userId: string, newRole: string) => {
-    await updateUserRole(userId, newRole as 'admin' | 'user');
+    await updateUserRole(userId, newRole as 'admin' | 'Premium' | 'user');
   };
 
   if (loading) {
@@ -88,6 +88,7 @@ const UserManagement = () => {
               <SelectContent>
                 <SelectItem value="all">Semua Peran</SelectItem>
                 <SelectItem value="admin">Admin</SelectItem>
+                <SelectItem value="Premium">Premium</SelectItem>
                 <SelectItem value="user">User</SelectItem>
               </SelectContent>
             </Select>
@@ -135,26 +136,24 @@ const UserManagement = () => {
                     </TableCell>
                     <TableCell>
                       <Badge 
-                        variant={user.role === 'admin' ? 'default' : 'secondary'}
-                        className={user.role === 'admin' ? 'bg-red-100 text-red-800' : 'bg-gray-100 text-gray-800'}
+                        variant={user.role === 'admin' ? 'default' : (user.role === 'Premium' ? 'secondary' : 'outline')}
+                        className={
+                          user.role === 'admin' ? 'bg-red-100 text-red-800' :
+                          user.role === 'Premium' ? 'bg-yellow-100 text-yellow-800' : 
+                          'bg-gray-100 text-gray-800'
+                        }
                       >
                         {user.role === 'admin' ? (
                           <>
                             <Shield className="h-3 w-3 mr-1" />
                             Admin
                           </>
+                        ) : user.role === 'Premium' ? (
+                          'Premium'
                         ) : (
                           'User'
                         )}
                       </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center space-x-2">
-                        <Calendar className="h-4 w-4 text-slate-400" />
-                        <span className="text-sm text-slate-600">
-                          {format(new Date(user.created_at), 'dd MMM yyyy', { locale: id })}
-                        </span>
-                      </div>
                     </TableCell>
                     <TableCell>
                       <div className="flex flex-col space-y-1">
@@ -175,6 +174,14 @@ const UserManagement = () => {
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center space-x-2">
+                        <Calendar className="h-4 w-4 text-slate-400" />
+                        <span className="text-sm text-slate-600">
+                          {format(new Date(user.created_at), 'dd MMM yyyy', { locale: id })}
+                        </span>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center space-x-2">
                         <Select
                           value={user.role}
                           onValueChange={(value) => handleRoleChange(user.id, value)}
@@ -184,6 +191,7 @@ const UserManagement = () => {
                           </SelectTrigger>
                           <SelectContent>
                             <SelectItem value="user">User</SelectItem>
+                            <SelectItem value="Premium">Premium</SelectItem>
                             <SelectItem value="admin">Admin</SelectItem>
                           </SelectContent>
                         </Select>

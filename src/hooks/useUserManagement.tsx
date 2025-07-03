@@ -9,7 +9,7 @@ interface UserWithRole {
   email: string | null;
   position: string | null;
   created_at: string;
-  role: 'admin' | 'user';
+  role: 'admin' | 'Premium' | 'user';
   premium_status?: {
     is_premium: boolean;
     end_date?: string;
@@ -70,7 +70,7 @@ export const useUserManagement = () => {
     }
   };
 
-  const updateUserRole = async (userId: string, newRole: 'admin' | 'user') => {
+  const updateUserRole = async (userId: string, newRole: 'admin' | 'Premium' | 'user') => {
     try {
       const { error } = await supabase
         .from('user_roles')
