@@ -27,12 +27,14 @@ import { useBlogManagement } from '@/hooks/useBlogManagement';
 import { BlogPost } from '@/types/blog';
 import { format } from 'date-fns';
 import { id } from 'date-fns/locale';
+import { useToast } from '@/hooks/use-toast';
 
 const BlogManagement = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [editingPost, setEditingPost] = useState<BlogPost | null>(null);
+  const { toast } = useToast();
   
   const { 
     posts, 
@@ -70,50 +72,82 @@ const BlogManagement = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    // Basic validation
+    if (!formData.title.trim()) {
+      toast({
+        title: 'Error',
+        description: 'Judul tidak boleh kosong',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (!formData.content.trim()) {
+      toast({
+        title: 'Error',
+        description: 'Konten tidak boleh kosong',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (formData.post_type === 'job' && !formData.company.trim()) {
+      toast({
+        title: 'Error',
+        description: 'Nama perusahaan tidak boleh kosong untuk lowongan',
+        variant: 'destructive',
+      });
+      return;
+    }
+    
     const postData = {
-      title: formData.title,
-      content: formData.content,
-      excerpt: formData.excerpt,
+      title: formData.title.trim(),
+      content: formData.content.trim(),
+      excerpt: formData.excerpt.trim() || null,
       category: formData.category,
       tags: formData.tags.split(',').map(tag => tag.trim()).filter(Boolean),
       status: formData.status,
       post_type: formData.post_type,
       ...(formData.post_type === 'job' && {
-        company: formData.company,
-        location: formData.location,
-        salary_range: formData.salary_range,
+        company: formData.company.trim(),
+        location: formData.location.trim() || null,
+        salary_range: formData.salary_range.trim() || null,
         application_deadline: formData.application_deadline || null,
-        requirements: formData.requirements,
+        requirements: formData.requirements.trim() || null,
         job_type: formData.job_type,
         experience_level: formData.experience_level,
-        contact_info: `WhatsApp: ${formData.company} - Kirim CV ke email/kontak yang tercantum`
+        contact_info: `WhatsApp: ${formData.company.trim()} - Kirim CV ke email/kontak yang tercantum`
       })
     };
 
-    if (editingPost) {
-      await updatePost(editingPost.id, postData);
-      setEditingPost(null);
-    } else {
-      await createPost(postData);
-    }
+    try {
+      if (editingPost) {
+        await updatePost(editingPost.id, postData);
+        setEditingPost(null);
+      } else {
+        await createPost(postData);
+      }
 
-    setFormData({
-      title: '',
-      content: '',
-      excerpt: '',
-      category: 'general',
-      tags: '',
-      status: 'draft',
-      post_type: 'article',
-      company: '',
-      location: '',
-      salary_range: '',
-      application_deadline: '',
-      requirements: '',
-      job_type: 'full-time',
-      experience_level: 'entry'
-    });
-    setIsCreateDialogOpen(false);
+      setFormData({
+        title: '',
+        content: '',
+        excerpt: '',
+        category: 'general',
+        tags: '',
+        status: 'draft',
+        post_type: 'article',
+        company: '',
+        location: '',
+        salary_range: '',
+        application_deadline: '',
+        requirements: '',
+        job_type: 'full-time',
+        experience_level: 'entry'
+      });
+      setIsCreateDialogOpen(false);
+    } catch (error) {
+      console.error('Submit error:', error);
+    }
   };
 
   const handleEdit = (post: BlogPost) => {

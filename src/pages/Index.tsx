@@ -31,6 +31,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Search, Settings, Sun, Moon, Activity, Waves, Users } from 'lucide-react';
 import { useState as useTheme } from 'react';
+import MobileMenu from '@/components/MobileMenu';
 
 const AppContent = () => {
   const [activeTab, setActiveTab] = useState('overview');
@@ -111,6 +112,12 @@ const AppContent = () => {
             <BlogManagement />
           </AccessControl>
         );
+      case 'certifications':
+        return (
+          <AccessControl requirePremium onUpgradeClick={() => setShowPremiumUpgrade(true)}>
+            <CertificationPage />
+          </AccessControl>
+        );
       case 'premium-management':
         return (
           <AccessControl requireAdmin>
@@ -123,12 +130,6 @@ const AppContent = () => {
         return <BlogPage />;
       case 'cv-builder':
         return <CVBuilder />;
-      case 'certifications':
-        return (
-          <AccessControl requirePremium onUpgradeClick={() => setShowPremiumUpgrade(true)}>
-            <CertificationPage />
-          </AccessControl>
-        );
       default:
         return <Dashboard onNavigateToInfo={() => setActiveTab('blog')} />;
     }
@@ -266,60 +267,7 @@ const AppContent = () => {
 
             {/* Mobile Navigation Menu */}
             {isMobile && (
-              <div className="bg-card border-b border-border sticky top-[140px] z-40">
-                <div className="overflow-x-auto pb-2">
-                  <div className="flex space-x-3 px-4 min-w-max py-3">
-                    {[
-                      { id: 'overview', label: 'Dashboard', icon: Activity, color: 'text-blue-600' },
-                      { id: 'blog', label: 'Info & Lowongan', icon: Activity, color: 'text-purple-600' },
-                      { id: 'cv-builder', label: 'CV Builder', icon: Users, color: 'text-green-600' },
-                      { id: 'tides', label: 'Pasang Surut', icon: Waves, color: 'text-blue-500', premium: true },
-                      { id: 'routes', label: 'Navigasi', icon: Activity, color: 'text-indigo-600', premium: true },
-                      { id: 'contracts', label: 'Kontrak', icon: Activity, color: 'text-orange-600', premium: true },
-                      { id: 'profile', label: 'Profil', icon: Users, color: 'text-gray-600' },
-                      ...(isAdmin ? [
-                        { id: 'admin-dashboard', label: 'Admin Panel', icon: Activity, color: 'text-red-600', admin: true },
-                        { id: 'admin', label: 'Verifikasi', icon: Activity, color: 'text-red-500', admin: true },
-                        { id: 'blog-management', label: 'Kelola Artikel', icon: Activity, color: 'text-red-400', admin: true },
-                        { id: 'user-management', label: 'Kelola User', icon: Users, color: 'text-red-700', admin: true },
-                        { id: 'premium-management', label: 'Kelola Premium', icon: Activity, color: 'text-red-800', admin: true },
-                      ] : [])
-                    ].map((item) => {
-                      const canAccess = item.admin ? isAdmin : (item.premium ? (isAdmin || premiumStatus.is_premium) : true);
-                      return (
-                        <div key={item.id} className="flex-shrink-0">
-                          <Button
-                            variant={activeTab === item.id ? 'default' : 'ghost'}
-                            size="sm"
-                            onClick={() => canAccess && setActiveTab(item.id)}
-                            className={`
-                              flex flex-col items-center space-y-1 h-16 w-20 p-2 relative
-                              ${!canAccess ? 'opacity-50 cursor-not-allowed' : ''}
-                              ${activeTab === item.id ? 'bg-primary text-primary-foreground' : 'hover:bg-muted'}
-                            `}
-                            disabled={!canAccess}
-                          >
-                            <item.icon className={`h-5 w-5 ${activeTab === item.id ? '' : item.color}`} />
-                            <span className="text-xs font-medium text-center leading-tight">
-                              {item.label}
-                            </span>
-                            {item.premium && !canAccess && (
-                              <Badge variant="secondary" className="absolute -top-1 -right-1 text-xs px-1 py-0 h-4">
-                                Pro
-                              </Badge>
-                            )}
-                            {item.admin && (
-                              <Badge variant="destructive" className="absolute -top-1 -right-1 text-xs px-1 py-0 h-4">
-                                A
-                              </Badge>
-                            )}
-                          </Button>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              </div>
+              <MobileMenu activeTab={activeTab} onTabChange={setActiveTab} />
             )}
 
             {/* Mobile Bottom Tab Bar */}
