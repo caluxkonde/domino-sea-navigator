@@ -1,29 +1,12 @@
 
 import { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 import { useToast } from '@/hooks/use-toast';
+import { contractService } from '@/services/contractService';
+import { parseContractResponse, isContractActionSuccessful } from '@/utils/contractResponseHandler';
+import { AdminContract } from '@/types/adminContract';
 
-export interface AdminContract {
-  id: string;
-  user_id: string;
-  contract_type: string;
-  price: number;
-  payment_status: string;
-  payment_method?: string;
-  whatsapp_number?: string;
-  created_at: string;
-  profiles?: {
-    full_name?: string;
-    email?: string;
-  };
-}
-
-interface ContractResponse {
-  success: boolean;
-  error?: string;
-  contract?: any;
-}
+export type { AdminContract } from '@/types/adminContract';
 
 export const useAdminContracts = () => {
   const [contracts, setContracts] = useState<AdminContract[]>([]);
@@ -33,44 +16,8 @@ export const useAdminContracts = () => {
 
   const fetchPendingContracts = async () => {
     try {
-      console.log('Fetching pending contracts...');
-      
-      // First, let's try a simpler query to get contracts with user info
-      const { data: contractsData, error: contractsError } = await supabase
-        .from('contracts')
-        .select('*')
-        .eq('payment_status', 'pending')
-        .order('created_at', { ascending: false });
-
-      if (contractsError) {
-        console.error('Error fetching contracts:', contractsError);
-        throw contractsError;
-      }
-
-      console.log('Contracts data:', contractsData);
-
-      // Then get profiles for each user
-      const contractsWithProfiles = await Promise.all(
-        (contractsData || []).map(async (contract) => {
-          const { data: profileData, error: profileError } = await supabase
-            .from('profiles')
-            .select('full_name, email')
-            .eq('id', contract.user_id)
-            .single();
-
-          if (profileError) {
-            console.error('Error fetching profile for user:', contract.user_id, profileError);
-          }
-
-          return {
-            ...contract,
-            profiles: profileData || undefined
-          } as AdminContract;
-        })
-      );
-
-      console.log('Contracts with profiles:', contractsWithProfiles);
-      setContracts(contractsWithProfiles);
+      const contractsData = await contractService.fetchPendingContracts();
+      setContracts(contractsData);
     } catch (error) {
       console.error('Error fetching contracts:', error);
       toast({
@@ -87,40 +34,10 @@ export const useAdminContracts = () => {
     if (!user) return false;
 
     try {
-      console.log('Accepting contract:', contractId, 'with notes:', adminNotes);
-      
-      const { data, error } = await supabase.rpc('accept_contract', {
-        contract_id_param: contractId,
-        admin_id_param: user.id,
-        admin_notes_param: adminNotes || null
-      });
+      const data = await contractService.acceptContract(contractId, user.id, adminNotes);
+      const response = parseContractResponse(data);
 
-      if (error) {
-        console.error('RPC error:', error);
-        throw error;
-      }
-
-      console.log('Accept contract response:', data);
-
-      // Handle the response - it could be a JSON object or string
-      let response: ContractResponse;
-      
-      if (typeof data === 'string') {
-        try {
-          response = JSON.parse(data);
-        } catch (e) {
-          console.error('Failed to parse response:', data);
-          // If we can't parse, assume success if no error from RPC
-          response = { success: true };
-        }
-      } else if (typeof data === 'object' && data !== null) {
-        response = data as unknown as ContractResponse;
-      } else {
-        // Assume success if no error
-        response = { success: true };
-      }
-
-      if (response.success !== false) {
+      if (isContractActionSuccessful(response)) {
         toast({
           title: "Berhasil",
           description: "Kontrak telah disetujui",
@@ -145,40 +62,10 @@ export const useAdminContracts = () => {
     if (!user) return false;
 
     try {
-      console.log('Rejecting contract:', contractId, 'with notes:', adminNotes);
-      
-      const { data, error } = await supabase.rpc('reject_contract', {
-        contract_id_param: contractId,
-        admin_id_param: user.id,
-        admin_notes_param: adminNotes || null
-      });
+      const data = await contractService.rejectContract(contractId, user.id, adminNotes);
+      const response = parseContractResponse(data);
 
-      if (error) {
-        console.error('RPC error:', error);
-        throw error;
-      }
-
-      console.log('Reject contract response:', data);
-
-      // Handle the response - it could be a JSON object or string
-      let response: ContractResponse;
-      
-      if (typeof data === 'string') {
-        try {
-          response = JSON.parse(data);
-        } catch (e) {
-          console.error('Failed to parse response:', data);
-          // If we can't parse, assume success if no error from RPC
-          response = { success: true };
-        }
-      } else if (typeof data === 'object' && data !== null) {
-        response = data as unknown as ContractResponse;
-      } else {
-        // Assume success if no error
-        response = { success: true };
-      }
-
-      if (response.success !== false) {
+      if (isContractActionSuccessful(response)) {
         toast({
           title: "Berhasil",
           description: "Kontrak telah ditolak",
@@ -203,40 +90,10 @@ export const useAdminContracts = () => {
     if (!user) return false;
 
     try {
-      console.log('Cancelling contract:', contractId, 'with reason:', cancellationReason);
-      
-      const { data, error } = await supabase.rpc('cancel_contract', {
-        contract_id_param: contractId,
-        admin_id_param: user.id,
-        cancellation_reason_param: cancellationReason || null
-      });
+      const data = await contractService.cancelContract(contractId, user.id, cancellationReason);
+      const response = parseContractResponse(data);
 
-      if (error) {
-        console.error('RPC error:', error);
-        throw error;
-      }
-
-      console.log('Cancel contract response:', data);
-
-      // Handle the response
-      let response: ContractResponse;
-      
-      if (typeof data === 'string') {
-        try {
-          response = JSON.parse(data);
-        } catch (e) {
-          console.error('Failed to parse response:', data);
-          // If we can't parse, assume success if no error from RPC
-          response = { success: true };
-        }
-      } else if (typeof data === 'object' && data !== null) {
-        response = data as unknown as ContractResponse;
-      } else {
-        // Assume success if no error
-        response = { success: true };
-      }
-
-      if (response.success !== false) {
+      if (isContractActionSuccessful(response)) {
         toast({
           title: "Berhasil",
           description: "Kontrak telah dibatalkan",
